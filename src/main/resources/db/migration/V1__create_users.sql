@@ -1,0 +1,5 @@
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+    user_name VARCHAR(150) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL
+);
