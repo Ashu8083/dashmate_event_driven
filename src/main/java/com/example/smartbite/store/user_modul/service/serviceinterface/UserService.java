@@ -26,12 +26,9 @@ public interface UserService {
 
     UserResponseDTO updateUser(UserCreateRequestDTO data);
 
-
     UserResponseDTO findUserByName(String name, UserStatusEnum status);
 
     UserAddressResponseDTO createUserAddress(UserAddressRequestDTO data);
-
-
 
 
 }
