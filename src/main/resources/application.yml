@@ -1,3 +1,5 @@
+server:
+  port : 8083
 spring :
   datasource :
     url : jdbc:postgresql://localhost:5432/store
@@ -8,6 +10,7 @@ spring :
       ddl-auto : none
   flyway :
     enabled : true
+    location : classpath:db/migration
 logging:
     level:
       org.flywaydb: DEBUG

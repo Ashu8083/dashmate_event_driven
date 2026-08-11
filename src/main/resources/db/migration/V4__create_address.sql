@@ -8,5 +8,4 @@ CREATE TABLE user_address(
 
     FOREIGN KEY (user_id)
         REFERENCES users(id)
-
 );
