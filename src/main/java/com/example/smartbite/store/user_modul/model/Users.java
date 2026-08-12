@@ -29,7 +29,7 @@ public class Users {
     @Column(name = "email", nullable = false,unique = true)
     private String email;
 
-    @Column(name = "phone_number", nullable = true ,unique = true)
+    @Column(name = "phone_number",unique = true)
     private String number;
 
     @Enumerated(EnumType.STRING)

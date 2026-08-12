@@ -11,13 +11,13 @@ CREATE TYPE gender as ENUM(
        'MALE',
        'FEMALE'
        'OTHER'
-)
+);
 CREATE TABLE riders(
     id UUID PRIMARY KEY,
     user_id UUID,
     age INTEGER,
     gender gender
-)
+);
 CREATE TABLE payment
 (
     id UUID PRIMARY KEY ,
@@ -25,7 +25,7 @@ CREATE TABLE payment
     total_charge DECIMAL(10,2),
     is_payment_successful BOOLEAN DEFAULT FALSE
 
-)
+);
 
 CREATE TABLE trips (
     id UUID PRIMARY KEY ,
@@ -34,7 +34,7 @@ CREATE TABLE trips (
     payment_id UUID,
     trip_stop_id UUID,
     status order_status,
-    package_description String(225),
+    package_description VARCHAR(225),
 
     scheduled_at TIMESTAMP,
     discount_amount DECIMAL,
@@ -44,14 +44,14 @@ CREATE TABLE trips (
     completed_at TIMESTAMP NULL,
 
     FOREIGN KEY (customer_id)
-            REFERENCES users(id)
+            REFERENCES users(id),
 
     FOREIGN KEY (payment_id)
-            REFERENCES payment(id)
+            REFERENCES payment(id),
 
     FOREIGN KEY (rider_id)
         REFERENCES riders(id)
-)
+);
 
 CREATE TYPE stop_type AS ENUM (
     'PICKUP',
