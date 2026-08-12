@@ -1,10 +1,7 @@
 package com.example.smartbite.store.user_modul.service.imp;
 
 
-import com.example.smartbite.store.user_modul.DTO.UserAddressRequestDTO;
-import com.example.smartbite.store.user_modul.DTO.UserAddressResponseDTO;
-import com.example.smartbite.store.user_modul.DTO.UserCreateRequestDTO;
-import com.example.smartbite.store.user_modul.DTO.UserResponseDTO;
+import com.example.smartbite.store.user_modul.DTO.*;
 import com.example.smartbite.store.user_modul.enums.UserStatusEnum;
 import com.example.smartbite.store.user_modul.model.UserAddress;
 import com.example.smartbite.store.user_modul.model.Users;
@@ -36,7 +33,7 @@ public class UserServiceImp implements UserService {
     public UserResponseDTO getUserByEmail(String email) {
         Optional<Users> user = userRepo.findByEmail(email);
         if (user.isEmpty()) {
-            return null;
+           throw  new RuntimeException("User not found");
         }
         Users foundUser = user.get();
         return new UserResponseDTO(
@@ -125,6 +122,61 @@ public class UserServiceImp implements UserService {
                 userAddress.getStreet(),
                 userAddress.getCity(),
                 userAddress.getState()
+        );
+    }
+
+    @Override
+    public UserStatusResponse checkUserStatus(String email) {
+        Users user = userRepo.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found")) ;
+
+        if (user.getStatus() == UserStatusEnum.ACTIVATE){
+            return new UserStatusResponse(
+                    user.getId(),
+                    user.getName(),
+                    user.getEmail(),
+                    user.getStatus()
+            );
+        }
+        throw new RuntimeException("User is Inactive");
+    }
+
+    @Transactional
+    @Override
+    public UserStatusResponse inactivateUser(String email) {
+        Users user = userRepo.findByEmail(email)
+                    .orElseThrow(()-> new RuntimeException("User not found"));
+
+        if (user.getStatus() == UserStatusEnum.DEACTIVATE){
+            throw  new RuntimeException("User Already Deactivate");
+        }
+
+        user.setStatus(UserStatusEnum.DEACTIVATE);
+
+        return new UserStatusResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getStatus()
+        );
+    }
+
+    @Transactional
+    @Override
+    public UserStatusResponse activateUser(String email) {
+        Users user = userRepo.findByEmail(email)
+                .orElseThrow(()-> new RuntimeException("User not found"));
+
+        if (user.getStatus() == UserStatusEnum.ACTIVATE){
+            throw  new RuntimeException("User Already activate");
+        }
+
+        user.setStatus(UserStatusEnum.ACTIVATE);
+
+        return new UserStatusResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getStatus()
         );
     }
 

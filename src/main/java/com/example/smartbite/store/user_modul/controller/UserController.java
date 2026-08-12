@@ -1,10 +1,7 @@
 package com.example.smartbite.store.user_modul.controller;
 
 
-import com.example.smartbite.store.user_modul.DTO.UserAddressRequestDTO;
-import com.example.smartbite.store.user_modul.DTO.UserAddressResponseDTO;
-import com.example.smartbite.store.user_modul.DTO.UserCreateRequestDTO;
-import com.example.smartbite.store.user_modul.DTO.UserResponseDTO;
+import com.example.smartbite.store.user_modul.DTO.*;
 import com.example.smartbite.store.user_modul.service.serviceinterface.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -41,6 +38,21 @@ public class UserController {
     UserResponseDTO updateUserController(@Valid @RequestBody UserCreateRequestDTO data){
         return userService.updateUser(data);
 
+    }
+
+    @GetMapping("/get-user-status{email}")
+    UserStatusResponse getUserStatus(@Valid @Email @PathVariable String email){
+        return userService.checkUserStatus(email);
+    }
+
+    @PutMapping("/update-user-status-to-inactive")
+    UserStatusResponse inactiveuser(@Valid @Email String email){
+        return userService.inactivateUser(email);
+    }
+
+    @PutMapping("/update-user-status-to-activate")
+    UserStatusResponse activateUser(@Valid @Email String  email){
+        return  userService.activateUser(email);
     }
 
 }
