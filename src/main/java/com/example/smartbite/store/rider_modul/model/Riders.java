@@ -4,11 +4,17 @@ package com.example.smartbite.store.rider_modul.model;
 import com.example.smartbite.store.rider_modul.enums.Gender;
 import com.example.smartbite.store.user_modul.model.Users;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "riders" )
 public class Riders{

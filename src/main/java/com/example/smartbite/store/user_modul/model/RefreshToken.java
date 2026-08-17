@@ -1,6 +1,5 @@
 package com.example.smartbite.store.user_modul.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,7 +21,6 @@ public class RefreshToken {
     private UUID id;
 
     @Column(nullable = false, unique = true)
-
     private String token;
 
     @ManyToOne

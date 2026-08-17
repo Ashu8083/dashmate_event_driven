@@ -3,9 +3,7 @@ package com.example.smartbite.store.user_modul.model;
 import com.example.smartbite.store.user_modul.enums.UserStatusEnum;
 import jakarta.persistence.*;
 
-import lombok.Data;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -13,6 +11,8 @@ import java.util.UUID;
 
 
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity

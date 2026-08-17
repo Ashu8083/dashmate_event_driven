@@ -7,7 +7,6 @@ import com.example.smartbite.store.user_modul.model.UserAddress;
 import com.example.smartbite.store.user_modul.model.UserDevice;
 import com.example.smartbite.store.user_modul.model.Users;
 import jakarta.transaction.Transactional;
-import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

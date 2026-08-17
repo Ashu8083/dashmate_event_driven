@@ -11,6 +11,7 @@ import com.example.smartbite.store.user_modul.repo.UserRefreshTokenRepo;
 import com.example.smartbite.store.user_modul.repo.UserRepo;
 import com.example.smartbite.store.user_modul.service.serviceinterface.UserService;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -29,6 +30,7 @@ public class UserServiceImp implements UserService {
 
     }
 
+    @Cacheable(value = "users", key = "#email")
     @Override
     public UserResponseDTO getUserByEmail(String email) {
         Optional<Users> user = userRepo.findByEmail(email);

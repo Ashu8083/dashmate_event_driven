@@ -13,46 +13,46 @@ public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService){
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
 
     @PostMapping("/create-user")
-    UserCreateRequestDTO userCreateController(@Valid @RequestBody UserCreateRequestDTO data){
-            return userService.createUser(data);
-        }
+    UserCreateRequestDTO userCreateController(@Valid @RequestBody UserCreateRequestDTO data) {
+        return userService.createUser(data);
+    }
 
     @PostMapping("/create-userAddress")
-    UserAddressResponseDTO createUserAddressController(@Valid @RequestBody UserAddressRequestDTO data){
+    UserAddressResponseDTO createUserAddressController(@Valid @RequestBody UserAddressRequestDTO data) {
         return userService.createUserAddress(data);
     }
 
     @GetMapping("/get-user")
-    UserResponseDTO getUserResponseController(@Valid @Email String email){
-        return  userService.getUserByEmail(email);
+    UserResponseDTO getUserResponseController(@RequestParam @Email String email) {
+        return userService.getUserByEmail(email);
     }
 
 
     @PutMapping("/upate-user")
-    UserResponseDTO updateUserController(@Valid @RequestBody UserCreateRequestDTO data){
+    UserResponseDTO updateUserController(@Valid @RequestBody UserCreateRequestDTO data) {
         return userService.updateUser(data);
 
     }
 
     @GetMapping("/get-user-status{email}")
-    UserStatusResponse getUserStatus(@Valid @Email @PathVariable String email){
+    UserStatusResponse getUserStatus(@RequestParam @Email @PathVariable String email) {
         return userService.checkUserStatus(email);
     }
 
     @PutMapping("/update-user-status-to-inactive")
-    UserStatusResponse inactiveuser(@Valid @Email String email){
+    UserStatusResponse inactiveuser(@Valid @Email String email) {
         return userService.inactivateUser(email);
     }
 
     @PutMapping("/update-user-status-to-activate")
-    UserStatusResponse activateUser(@Valid @Email String  email){
-        return  userService.activateUser(email);
+    UserStatusResponse activateUser(@Valid @Email String email) {
+        return userService.activateUser(email);
     }
 
 }
