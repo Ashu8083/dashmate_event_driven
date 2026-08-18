@@ -12,25 +12,39 @@ import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
+@Entity
+@Table(name = "riders")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "riders" )
-public class Riders{
+public class Riders {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            unique = true
+    )
     private Users user;
 
     @Column(name = "age")
     private Integer age;
 
+    @Column(name = "is_available", nullable = false)
+    private Boolean isAvailable = false;
+
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "gender")
     private Gender gender;
-
 }

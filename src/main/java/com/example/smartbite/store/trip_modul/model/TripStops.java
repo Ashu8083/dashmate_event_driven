@@ -23,8 +23,8 @@ public class TripStops {
     @Id
     private UUID id;
 
-    @OneToOne
-    @JoinColumn(name = "trip_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trip_id", nullable = false)
     private Trips trip;
 
     @Enumerated(EnumType.STRING)

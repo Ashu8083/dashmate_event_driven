@@ -7,4 +7,5 @@ import java.util.UUID;
 public interface PaymentProvider {
 
     Payment getPayment(UUID paymentId);
+    Boolean checkPayment(UUID paymentId);
 }

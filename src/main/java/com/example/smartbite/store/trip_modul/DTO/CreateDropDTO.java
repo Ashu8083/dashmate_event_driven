@@ -8,6 +8,6 @@ public record CreateDropDTO(
         String address,
         Double latitude,
         Double longitude,
-        Double contact_name,
-        Double contact_phone ) {
+        String contact_name,
+        String contact_phone ) {
 }

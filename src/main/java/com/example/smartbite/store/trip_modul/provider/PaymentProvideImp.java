@@ -18,8 +18,12 @@ public class PaymentProvideImp implements PaymentProvider {
     @Override
     public Payment getPayment(UUID paymentId) {
 
-        Payment payment = paymentRepo.findById(paymentId)
+        return paymentRepo.findById(paymentId)
                 .orElseThrow(()->new RuntimeException("Payment Details Not Found "));
-        return payment;
+    }
+
+    @Override
+    public Boolean checkPayment(UUID paymentId) {
+        return paymentRepo.existsById(paymentId);
     }
 }
