@@ -30,7 +30,7 @@ public class UserServiceImp implements UserService {
 
     }
 
-    @Cacheable(value = "users", key = "#email")
+
     @Override
     public UserResponseDTO getUserByEmail(String email) {
         Optional<Users> user = userRepo.findByEmail(email);

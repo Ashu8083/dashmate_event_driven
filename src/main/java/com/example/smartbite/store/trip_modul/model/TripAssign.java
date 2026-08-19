@@ -27,7 +27,7 @@ public class TripAssign {
     private Riders rider;
 
     @OneToOne
-    @JoinColumn(name = "trip_id")
+    @JoinColumn(name = "trip_id", nullable = false, unique = true)
     private Trips trip;
 
     @Column(name = "status")

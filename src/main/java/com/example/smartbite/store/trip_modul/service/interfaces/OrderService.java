@@ -1,12 +1,9 @@
 package com.example.smartbite.store.trip_modul.service.interfaces;
 
-import com.example.smartbite.store.trip_modul.DTO.ResponseModelOnCancel;
-import com.example.smartbite.store.trip_modul.DTO.ResponseTripModel;
-import com.example.smartbite.store.trip_modul.DTO.TripCancelRequest;
-import com.example.smartbite.store.trip_modul.DTO.TripRequest;
+import com.example.smartbite.store.rider_modul.model.Riders;
+import com.example.smartbite.store.trip_modul.DTO.*;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 
@@ -14,13 +11,11 @@ import java.util.UUID;
 public interface OrderService {
 
 
-    ResponseTripModel createTripRequest(TripRequest tripRequestModel);
+    TripResponseDTO createTripRequest(TripRequest tripRequestModel);
 
-    ResponseTripModel updateTripRequest(TripRequest tripRequestModel);
+    TripResponseDTO assignRider(Riders rider,UUID tripId,TripResponseDTO tripResponseDTO);
 
     ResponseModelOnCancel cancelTripRequest(TripCancelRequest tripCancelRequest);
-
-    List<ResponseTripModel> getAllTripRequestsByUserId(UUID userId );
 
 
 

@@ -37,10 +37,10 @@ public class Riders {
     @Column(name = "is_available", nullable = false)
     private Boolean isAvailable = false;
 
-    @Column(name = "latitude")
+    @Column(name = "latitude",nullable = true)
     private Double latitude;
 
-    @Column(name = "longitude")
+    @Column(name = "longitude",nullable = true)
     private Double longitude;
 
     @Enumerated(EnumType.STRING)

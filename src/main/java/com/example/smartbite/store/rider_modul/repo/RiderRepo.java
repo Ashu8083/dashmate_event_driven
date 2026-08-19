@@ -1,6 +1,7 @@
 package com.example.smartbite.store.rider_modul.repo;
 
 import com.example.smartbite.store.rider_modul.model.Riders;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Repository
 public interface RiderRepo extends JpaRepository<Riders, UUID> {
 
-    Optional<Riders> findByName(String name);
+
     @Query(value = """
     SELECT *
     FROM riders r

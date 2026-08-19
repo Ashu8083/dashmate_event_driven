@@ -1,11 +1,13 @@
 package com.example.smartbite.store.trip_modul.service.imp;
 
-import com.example.smartbite.store.trip_modul.DTO.ResponseModelOnCancel;
-import com.example.smartbite.store.trip_modul.DTO.ResponseTripModel;
-import com.example.smartbite.store.trip_modul.DTO.TripCancelRequest;
-import com.example.smartbite.store.trip_modul.DTO.TripRequest;
+import com.example.smartbite.store.payment_modul.model.Payment;
+import com.example.smartbite.store.rider_modul.model.Riders;
+import com.example.smartbite.store.trip_modul.DTO.*;
+import com.example.smartbite.store.trip_modul.enums.OrderStatus;
 import com.example.smartbite.store.trip_modul.event.TripAvailableEvent;
+import com.example.smartbite.store.trip_modul.event.TripCancelAfterAssign;
 import com.example.smartbite.store.trip_modul.mapper.TripMapper;
+import com.example.smartbite.store.trip_modul.model.TripAssign;
 import com.example.smartbite.store.trip_modul.model.TripStops;
 import com.example.smartbite.store.trip_modul.model.Trips;
 import com.example.smartbite.store.trip_modul.provider.CustomerProvider;
@@ -16,14 +18,15 @@ import com.example.smartbite.store.trip_modul.repo.TripStop;
 import com.example.smartbite.store.trip_modul.service.interfaces.OrderService;
 import com.example.smartbite.store.user_modul.model.Users;
 import jakarta.transaction.Transactional;
-import org.hibernate.annotations.Cache;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class OrderServiceImp implements OrderService {
 
@@ -34,8 +37,6 @@ public class OrderServiceImp implements OrderService {
     private final PaymentProvider paymentProvider;
     private final TripMapper tripMapper;
     private final TripStop tripStop;
-
-
 
     public OrderServiceImp(ApplicationEventPublisher applicationEventPublisher,
                            TripRepo tripRepo, TripAssignRepo tripAssignRepo,
@@ -53,7 +54,7 @@ public class OrderServiceImp implements OrderService {
 
     @Transactional
     @Override
-    public ResponseTripModel createTripRequest(TripRequest tripRequest) {
+    public TripResponseDTO createTripRequest(TripRequest tripRequest) {
 
         Users customer = new Users();
         TripStops tripStopsPickUp = new TripStops();
@@ -69,31 +70,77 @@ public class OrderServiceImp implements OrderService {
         tripStopsDropOff = tripMapper.createTripStopDropOffRequestEntity(
                                             tripRequest.pickUpAndDropDTO.createDropDTO(),trip);
         tripStop.save(tripStopsDropOff);
+        log.info("Create trip request successful");
+        Payment payment  = paymentProvider.getPayment(tripRequest.getPayment_id());
+        TripResponseDTO tripResponseDTO = tripMapper.createTripResponseDTOOnTripCreate(trip ,tripStopsPickUp,tripStopsDropOff);
         applicationEventPublisher.publishEvent(new TripAvailableEvent(tripRequest.package_description
-                ,tripRequest.pickUpAndDropDTO));
+                                                                     ,tripRequest.pickUpAndDropDTO,
+                                                                      trip.getId(),payment,tripResponseDTO  ));
+        log.info("Trip Publish Event Published ");
 
-
-
-        paymentProvider.checkPayment(tripRequest.getPayment_id());
-
-        return null;
+        return  tripResponseDTO ;
     }
 
     @Override
-    public ResponseTripModel updateTripRequest(TripRequest tripRequestModel) {
-        return null;
+    public TripResponseDTO assignRider(Riders rider, UUID tripId,TripResponseDTO tripResponseDTO) {
+
+        Trips trip = tripRepo.findById(tripId).orElseThrow(()-> new RuntimeException("trip id not found"));
+        if (trip.getStatus() != OrderStatus.PENDING){
+                throw new RuntimeException("trip not available");
+        }
+
+        TripAssign tripAssign = new TripAssign();
+        tripAssign.setRider(rider);
+        tripAssign.setTrip(trip);
+        tripAssign.setStatus(OrderStatus.ASSIGNED);
+        trip.setTripAssign(tripAssign);
+        trip.setStatus(OrderStatus.ASSIGNED);
+        tripAssignRepo.save(tripAssign);
+        tripRepo.save(trip);
+
+        tripResponseDTO = tripMapper.updateTripResponseDTOOnTripUpdate(tripResponseDTO,rider);
+
+        return tripResponseDTO;
     }
 
     @Override
-    public ResponseModelOnCancel cancelTripRequest(TripCancelRequest tripCancelRequest) {
-        return null;
+    @Transactional
+    public ResponseModelOnCancel cancelTripRequest(
+            TripCancelRequest tripCancelRequest) {
+        log.info("User requested trip cancellation. tripId={}",
+                tripCancelRequest.tripId);
+        Trips trip = tripRepo.findById(tripCancelRequest.tripId)
+                .orElseThrow(() ->
+                        new RuntimeException("Trip id not found"));
+        OrderStatus tripStatus = trip.getStatus();
+        log.info("Current trip status={} at timestamp={}",
+                tripStatus, Instant.now());
+        if (tripStatus == OrderStatus.PENDING) {
+            trip.setStatus(OrderStatus.CANCELED);
+            trip.setCancelled_at(Instant.now());
+            tripRepo.save(trip);
+            return new ResponseModelOnCancel();
+        }
+        if (tripStatus == OrderStatus.ASSIGNED) {
+            trip.setStatus(OrderStatus.CANCELED);
+            trip.setCancelled_at(Instant.now());
+            tripAssignRepo.findById(trip.getTripAssign().getId())
+                    .ifPresent(tripAssign -> {
+                        tripAssign.setStatus(OrderStatus.CANCELED);
+                        tripAssign.setCancelled_at(LocalDateTime.now());
+                        tripAssignRepo.save(tripAssign);
+                    });
+            tripRepo.save(trip);
+            applicationEventPublisher.publishEvent(
+                    new TripCancelAfterAssign(
+                            trip.getTripAssign().getRider()
+                    )
+            );
+            return new ResponseModelOnCancel();
+        }
+        throw new RuntimeException(
+                "Trip cannot be cancelled in current status: " + tripStatus
+        );
     }
-
-    @Override
-    public List<ResponseTripModel> getAllTripRequestsByUserId(UUID userId) {
-        return List.of();
-    }
-
-
 }
 
