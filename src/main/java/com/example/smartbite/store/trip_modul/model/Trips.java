@@ -1,18 +1,11 @@
 package com.example.smartbite.store.trip_modul.model;
-
-
-import com.example.smartbite.store.payment_modul.model.Payment;
-import com.example.smartbite.store.rider_modul.model.Riders;
 import com.example.smartbite.store.trip_modul.enums.OrderStatus;
-import com.example.smartbite.store.user_modul.model.Users;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 
@@ -31,23 +24,23 @@ public class Trips {
 
     @OneToOne
     @JoinColumn(name = "customer_id")
-    private Users customer;
+    private UUID customer_id;
 
     @OneToOne
     @JoinColumn(name = "trip_assign_id")
-    private  TripAssign tripAssign;
+    private  UUID trip_assign_id;
 
     @OneToOne
     @JoinColumn(name = "pickup_id")
-    private TripStops pickup;
+    private UUID pickup_id;
 
     @OneToOne
     @JoinColumn(name = "drop_off_id")
-    private TripStops dropOff;
+    private UUID drop_off_id;
 
     @OneToOne
     @JoinColumn(name = "payment_id")
-    private Payment payment;
+    private UUID payment_id;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)

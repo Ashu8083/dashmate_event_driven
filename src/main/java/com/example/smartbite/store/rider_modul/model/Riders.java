@@ -23,13 +23,12 @@ public class Riders {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
+    @Column(
             name = "user_id",
             nullable = false,
             unique = true
     )
-    private Users user;
+    private UUID userId;
 
     @Column(name = "age")
     private Integer age;

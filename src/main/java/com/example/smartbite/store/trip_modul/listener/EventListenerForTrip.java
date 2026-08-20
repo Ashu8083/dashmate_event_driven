@@ -20,7 +20,7 @@ public class EventListenerForTrip {
     @EventListener
     public void tripAssign(RiderAvailable event){
         log.info("TripAssign event received");
-        orderService.assignRider(event.riders(),event.trips_id(),event.tripResponseDTO());
+        orderService.assignRider(event.riderDTO(),event.trips_id(),event.tripResponseDTO());
 
     }
 

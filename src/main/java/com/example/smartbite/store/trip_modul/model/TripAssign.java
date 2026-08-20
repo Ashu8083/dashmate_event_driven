@@ -22,13 +22,12 @@ public class TripAssign {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rider_id")
-    private Riders rider;
+    @Column(name= "rider_id")
+    private UUID rider_id;
 
-    @OneToOne
-    @JoinColumn(name = "trip_id", nullable = false, unique = true)
-    private Trips trip;
+
+    @Column(name = "trip_id", nullable = false, unique = true)
+    private UUID trip_id;
 
     @Column(name = "status")
     private OrderStatus status;

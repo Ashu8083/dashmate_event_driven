@@ -17,7 +17,7 @@ public class TripResponseDTO {
 
     public UUID customerId;
     public UUID tripId;
-    public String RiderName;
+    public String RiderName = null;
     public UUID riderId;
     public Gender rider_gander;
     public OrderStatus orderStatus;

@@ -23,8 +23,15 @@ import com.example.smartbite.store.user_modul.model.Users;
 
         List<Users> findByNameContainingIgnoreCase(String name);
 
-        @Query("SELECT u FROM Users u WHERE : status = 'ACTIVATE' AND u.name = :name")
-        Optional<Users> findUserByName(@Param("name") String name,
-                                       @Param("status") UserStatusEnum status);
 
+        @Query("""
+            SELECT u
+            FROM Users u
+            WHERE u.status = :status
+            AND u.name = :name
+        """)
+        Optional<Users> findUserByName(
+                @Param("name") String name,
+                @Param("status") UserStatusEnum status
+        );
     }

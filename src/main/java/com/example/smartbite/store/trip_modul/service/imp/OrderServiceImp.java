@@ -1,6 +1,7 @@
 package com.example.smartbite.store.trip_modul.service.imp;
 
 import com.example.smartbite.store.payment_modul.model.Payment;
+import com.example.smartbite.store.rider_modul.DTO.RiderDTO;
 import com.example.smartbite.store.rider_modul.model.Riders;
 import com.example.smartbite.store.trip_modul.DTO.*;
 import com.example.smartbite.store.trip_modul.enums.OrderStatus;
@@ -82,7 +83,7 @@ public class OrderServiceImp implements OrderService {
     }
 
     @Override
-    public TripResponseDTO assignRider(Riders rider, UUID tripId,TripResponseDTO tripResponseDTO) {
+    public TripResponseDTO assignRider(RiderDTO rider, UUID tripId, TripResponseDTO tripResponseDTO) {
 
         Trips trip = tripRepo.findById(tripId).orElseThrow(()-> new RuntimeException("trip id not found"));
         if (trip.getStatus() != OrderStatus.PENDING){
@@ -90,10 +91,10 @@ public class OrderServiceImp implements OrderService {
         }
 
         TripAssign tripAssign = new TripAssign();
-        tripAssign.setRider(rider);
-        tripAssign.setTrip(trip);
+        tripAssign.setRider_id(rider.getId());
+        tripAssign.setTrip_id(trip.getId());
         tripAssign.setStatus(OrderStatus.ASSIGNED);
-        trip.setTripAssign(tripAssign);
+        trip.setTrip_assign_id(tripAssign.getId());
         trip.setStatus(OrderStatus.ASSIGNED);
         tripAssignRepo.save(tripAssign);
         tripRepo.save(trip);
@@ -112,6 +113,8 @@ public class OrderServiceImp implements OrderService {
         Trips trip = tripRepo.findById(tripCancelRequest.tripId)
                 .orElseThrow(() ->
                         new RuntimeException("Trip id not found"));
+        TripAssign tripAssignPresent = tripAssignRepo.findById(trip.getTrip_assign_id())
+                .orElseThrow(()->new RuntimeException("tripAssign not found"));
         OrderStatus tripStatus = trip.getStatus();
         log.info("Current trip status={} at timestamp={}",
                 tripStatus, Instant.now());
@@ -124,7 +127,7 @@ public class OrderServiceImp implements OrderService {
         if (tripStatus == OrderStatus.ASSIGNED) {
             trip.setStatus(OrderStatus.CANCELED);
             trip.setCancelled_at(Instant.now());
-            tripAssignRepo.findById(trip.getTripAssign().getId())
+            tripAssignRepo.findById(trip.getTrip_assign_id())
                     .ifPresent(tripAssign -> {
                         tripAssign.setStatus(OrderStatus.CANCELED);
                         tripAssign.setCancelled_at(LocalDateTime.now());
@@ -132,9 +135,7 @@ public class OrderServiceImp implements OrderService {
                     });
             tripRepo.save(trip);
             applicationEventPublisher.publishEvent(
-                    new TripCancelAfterAssign(
-                            trip.getTripAssign().getRider()
-                    )
+                    new TripCancelAfterAssign(tripAssignPresent.getRider_id())
             );
             return new ResponseModelOnCancel();
         }
