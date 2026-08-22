@@ -1,6 +1,6 @@
 package com.example.smartbite.store.trip_modul.DTO;
 
-import com.example.smartbite.store.trip_modul.enums.OrderStatus;
+import com.example.smartbite.store.trip_modul.internalModule.enums.OrderStatus;
 
 import java.time.Instant;
 import java.util.UUID;

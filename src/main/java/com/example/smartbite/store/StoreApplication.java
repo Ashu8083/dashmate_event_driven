@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 
 @Slf4j
-
 @SpringBootApplication
 public class StoreApplication {
 

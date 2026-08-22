@@ -1,8 +1,6 @@
 package com.example.smartbite.store.trip_modul.DTO;
 
-import com.example.smartbite.store.trip_modul.enums.StopType;
-
-import javax.print.DocFlavor;
+import com.example.smartbite.store.trip_modul.internalModule.enums.StopType;
 
 public record CreatePickUpDTO(
         StopType stopType,

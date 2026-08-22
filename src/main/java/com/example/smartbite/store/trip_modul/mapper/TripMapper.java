@@ -1,15 +1,12 @@
 package com.example.smartbite.store.trip_modul.mapper;
 
 
-import com.example.smartbite.store.rider_modul.DTO.RiderDTO;
-import com.example.smartbite.store.rider_modul.model.Riders;
+import com.example.smartbite.store.rider_modul.internalModule.DTO.RiderDTO;
 import com.example.smartbite.store.trip_modul.DTO.*;
-import com.example.smartbite.store.trip_modul.enums.OrderStatus;
-import com.example.smartbite.store.trip_modul.enums.StopType;
-import com.example.smartbite.store.trip_modul.model.TripStops;
-import com.example.smartbite.store.trip_modul.model.Trips;
-import com.example.smartbite.store.trip_modul.repo.TripStop;
-import com.example.smartbite.store.user_modul.model.Users;
+import com.example.smartbite.store.trip_modul.internalModule.enums.OrderStatus;
+import com.example.smartbite.store.trip_modul.internalModule.enums.StopType;
+import com.example.smartbite.store.trip_modul.internalModule.model.TripStops;
+import com.example.smartbite.store.trip_modul.internalModule.model.Trips;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -20,10 +17,10 @@ import java.util.UUID;
 public class TripMapper {
 
 
-    public Trips createTripRequestEntity (TripRequest tripRequest, Users user) {
+    public Trips createTripRequestEntity (TripRequest tripRequest, UUID user_id) {
 
         Trips trips = new Trips();
-        trips.setCustomer_id(user.getId());
+        trips.setCustomerId(user_id);
         trips.setPackage_description(tripRequest.getPackage_description());
         trips.setScheduled_at(tripRequest.getScheduled_time());
         return trips;
@@ -41,7 +38,7 @@ public class TripMapper {
 
         //Assign Value to the DTO
         tripResponseDTO.setTripId(trip.getId());
-        tripResponseDTO.setCustomerId(trip.getCustomer_id());
+        tripResponseDTO.setCustomerId(trip.getCustomerId());
         tripResponseDTO.setPackage_description(trip.getPackage_description());
         tripResponseDTO.setPickUpAddress(pickUpAddress.getAddress());
         tripResponseDTO.setPickUpLocations(pickuplocation);
@@ -55,8 +52,35 @@ public class TripMapper {
         tripResponseDTO.setOrderStatus(OrderStatus.PENDING);
 
         return tripResponseDTO;
+    }
 
+    public TripModelDTO createTripModelDTO(Trips trip, TripStops pickUpAddress, TripStops dropOffAddress) {
 
+        TripModelDTO tripModelDTO = new TripModelDTO();
+
+        Map<String,Double> pickuplocation = new HashMap<>();
+        Map<String,Double> dropOfflocation = new HashMap<>();
+        pickuplocation.put("latitude",pickUpAddress.getLatitude());
+        pickuplocation.put("longitude",pickUpAddress.getLongitude());
+        dropOfflocation.put("latitude",dropOffAddress.getLatitude());
+        dropOfflocation.put("longitude",dropOffAddress.getLongitude());
+
+        //Assign Value to the DTO
+        tripModelDTO.setTripId(trip.getId());
+        tripModelDTO.setCustomerId(trip.getCustomerId());
+        tripModelDTO.setPackage_description(trip.getPackage_description());
+        tripModelDTO.setPickUpAddress(pickUpAddress.getAddress());
+        tripModelDTO.setPickUpLocations(pickuplocation);
+        tripModelDTO.setDropOffLocations(dropOfflocation);
+        tripModelDTO.setDropOffAddress(dropOffAddress.getAddress());
+
+        //Set rider info null for the first time
+        tripModelDTO.setRiderId(null);
+        tripModelDTO.setRiderName(null);
+        tripModelDTO.setRider_gander(null);
+        tripModelDTO.setOrderStatus(OrderStatus.PENDING);
+
+        return tripModelDTO;
 
     }
 

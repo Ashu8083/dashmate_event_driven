@@ -10,11 +10,11 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class TripResponseDTO {
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class TripModelDTO {
     public UUID customerId;
     public UUID tripId;
     public String RiderName = null;
@@ -27,5 +27,4 @@ public class TripResponseDTO {
     public String dropOffAddress;
     public Map<String,Double> dropOffLocations;
     public Instant scheduled_time;
-
 }
