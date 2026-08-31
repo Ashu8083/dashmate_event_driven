@@ -5,4 +5,5 @@ public interface UserModuleApi {
 
     UserAuthenticationData getUserAuthenticationData(UUID user_id);
     UserModuleReplica getUserModuleReplica(UUID user_id);
+    UserModuleReplica  createUserModel(String name , String number ,String email);
 }
