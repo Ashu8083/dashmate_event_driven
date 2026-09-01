@@ -15,11 +15,6 @@ public class EventListenerForTrip {
 
     private final OrderService orderService;
 
-    @EventListener
-    public void tripAssign(RiderAvailable event){
-        log.info("TripAssign event received");
-        orderService.assignRider(event.riderDTO(),event.trips_id(),event.tripResponseDTO());
 
-    }
 
 }

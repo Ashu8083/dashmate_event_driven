@@ -27,11 +27,11 @@ public class TripPublicAPIImpl implements  TripPublicAPI{
                 .orElseThrow(()-> new RuntimeException("Trip not found"));
         List<TripStops> tripStop = trip.getTripStop();
         TripStops tripPickUp = tripStop.stream()
-                .filter(stop ->stop.getStop_type() == StopType.PICKUP).
+                .filter(stop ->stop.getStopType() == StopType.PICKUP).
                 findFirst().orElseThrow(()->new RuntimeException("trip stop not found"));
 
         TripStops tripDropOff = tripStop.stream()
-                .filter(stop ->stop.getStop_type() == StopType.DROP)
+                .filter(stop ->stop.getStopType() == StopType.DROP)
                 .findFirst().orElse(null);
         TripResponseDTO tripResponseDTO =
                 tripMapper.createTripResponseDTOOnTripCreate(trip,tripPickUp,tripDropOff);
@@ -45,11 +45,11 @@ public class TripPublicAPIImpl implements  TripPublicAPI{
                 .orElseThrow(()-> new RuntimeException("Trip not found"));
         List<TripStops> tripStop = trip.getTripStop();
         TripStops tripPickUp = tripStop.stream()
-                .filter(stop ->stop.getStop_type() == StopType.PICKUP).
+                .filter(stop ->stop.getStopType() == StopType.PICKUP).
                 findFirst().orElseThrow(()->new RuntimeException("trip stop not found"));
 
         TripStops tripDropOff = tripStop.stream()
-                .filter(stop ->stop.getStop_type() == StopType.DROP)
+                .filter(stop ->stop.getStopType() == StopType.DROP)
                 .findFirst().orElse(null);
         TripModelDTO tripModelDTO =
                 tripMapper.createTripModelDTO(trip,tripPickUp,tripDropOff);

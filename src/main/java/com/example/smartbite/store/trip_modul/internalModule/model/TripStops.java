@@ -29,7 +29,7 @@ public class TripStops {
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    private StopType stop_type;
+    private StopType stopType;
 
     @Column(name = "address")
     private String  address;

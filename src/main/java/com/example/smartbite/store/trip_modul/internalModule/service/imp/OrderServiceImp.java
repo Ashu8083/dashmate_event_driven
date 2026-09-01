@@ -1,25 +1,27 @@
 package com.example.smartbite.store.trip_modul.internalModule.service.imp;
 
 import com.example.smartbite.store.payment_modul.internalModule.model.Payment;
-import com.example.smartbite.store.rider_modul.internalModule.DTO.RiderDTO;
+import com.example.smartbite.store.rider_modul.DTO.RiderDTO;
+import com.example.smartbite.store.rider_modul.DTO.RiderModelReplicaDTO;
+import com.example.smartbite.store.rider_modul.publicAPi.RiderPublicAPIImpl;
 import com.example.smartbite.store.trip_modul.DTO.ResponseModelOnCancel;
 import com.example.smartbite.store.trip_modul.DTO.TripCancelRequest;
 import com.example.smartbite.store.trip_modul.DTO.TripRequest;
 import com.example.smartbite.store.trip_modul.DTO.TripResponseDTO;
 import com.example.smartbite.store.trip_modul.internalModule.enums.OrderStatus;
+import com.example.smartbite.store.trip_modul.internalModule.enums.StopType;
 import com.example.smartbite.store.trip_modul.internalModule.event.TripAvailableEvent;
 import com.example.smartbite.store.trip_modul.internalModule.event.TripCancelAfterAssign;
 import com.example.smartbite.store.trip_modul.mapper.TripMapper;
 import com.example.smartbite.store.trip_modul.internalModule.model.TripAssign;
 import com.example.smartbite.store.trip_modul.internalModule.model.TripStops;
 import com.example.smartbite.store.trip_modul.internalModule.model.Trips;
-import com.example.smartbite.store.trip_modul.internalModule.provider.CustomerProvider;
 import com.example.smartbite.store.trip_modul.internalModule.provider.PaymentProvider;
 import com.example.smartbite.store.trip_modul.internalModule.repo.TripAssignRepo;
 import com.example.smartbite.store.trip_modul.internalModule.repo.TripRepo;
-import com.example.smartbite.store.trip_modul.internalModule.repo.TripStop;
+import com.example.smartbite.store.trip_modul.internalModule.repo.TripStopRepo;
 import com.example.smartbite.store.trip_modul.internalModule.service.interfaces.OrderService;
-import com.example.smartbite.store.user_modul.internalModule.model.Users;
+import com.example.smartbite.store.user_modul.publicApi.UserModuleApi;
 import com.example.smartbite.store.user_modul.publicApi.UserModuleApiImpl;
 import com.example.smartbite.store.user_modul.publicApi.UserModuleReplica;
 import jakarta.transaction.Transactional;
@@ -38,21 +40,25 @@ public class OrderServiceImp implements OrderService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final TripRepo tripRepo;
     private final TripAssignRepo tripAssignRepo;
-    private final UserModuleApiImpl customerProvider;
     private final PaymentProvider paymentProvider;
+    private final UserModuleApiImpl userModuleApi;
+    private final RiderPublicAPIImpl riderPublicAPI;
     private final TripMapper tripMapper;
-    private final TripStop tripStop;
+    private final TripStopRepo tripStop;
 
     public OrderServiceImp(
-                           ApplicationEventPublisher applicationEventPublisher,
-                           TripRepo tripRepo, TripAssignRepo tripAssignRepo,
-                           UserModuleApiImpl customerProvider, PaymentProvider paymentProvider,
-                           TripMapper tripMapper, TripStop tripStop
+            ApplicationEventPublisher applicationEventPublisher,
+            TripRepo tripRepo, TripAssignRepo tripAssignRepo,
+            UserModuleApiImpl userModuleApi , PaymentProvider paymentProvider,
+            TripMapper tripMapper, TripStopRepo tripStop,
+            RiderPublicAPIImpl riderPublicAPI
+
                             ) {
         this.applicationEventPublisher = applicationEventPublisher;
         this.tripRepo = tripRepo;
         this.tripAssignRepo = tripAssignRepo;
-        this.customerProvider = customerProvider;
+        this.userModuleApi = userModuleApi;
+        this.riderPublicAPI = riderPublicAPI;
         this.paymentProvider = paymentProvider;
         this.tripMapper = tripMapper;
         this.tripStop = tripStop;
@@ -62,7 +68,7 @@ public class OrderServiceImp implements OrderService {
     @Override
     public TripResponseDTO createTripRequest(TripRequest tripRequest) {
 
-        UserModuleReplica customer = customerProvider.getUserModuleReplica(tripRequest.getCustomer_id());
+        UserModuleReplica customer = userModuleApi.getUserModuleReplica(tripRequest.getCustomer_id());
         Trips trip = tripMapper.createTripRequestEntity(tripRequest, customer.user_id());
         tripRepo.save(trip);
         TripStops tripStopsPickUp = tripMapper.createTripStopsPickUpRequestEntity(
@@ -83,7 +89,7 @@ public class OrderServiceImp implements OrderService {
     }
 
     @Override
-    public TripResponseDTO assignRider(RiderDTO rider, UUID tripId, TripResponseDTO tripResponseDTO) {
+    public TripResponseDTO assignRider(UUID riderId, UUID tripId) {
 
         Trips trip = tripRepo.findById(tripId).orElseThrow(()-> new RuntimeException("trip id not found"));
         if (trip.getStatus() != OrderStatus.PENDING){
@@ -91,15 +97,21 @@ public class OrderServiceImp implements OrderService {
         }
 
         TripAssign tripAssign = new TripAssign();
-        tripAssign.setRider_id(rider.getId());
+        tripAssign.setRider_id(riderId);
         tripAssign.setTrip(trip);
         tripAssign.setStatus(OrderStatus.ASSIGNED);
+        RiderModelReplicaDTO riderDTO =  riderPublicAPI.getRiderReplica(riderId);
         trip.setTripAssign(tripAssign);
         trip.setStatus(OrderStatus.ASSIGNED);
         tripAssignRepo.save(tripAssign);
         tripRepo.save(trip);
+        TripStops dropOff = tripStop.findByTripIdAndStopType(trip.getId(), StopType.DROP);
+        TripStops pickUp = tripStop.findByTripIdAndStopType(trip.getId(), StopType.PICKUP);
+        UserModuleReplica riderUser = userModuleApi.getUserModuleReplica(riderId);
 
-        tripResponseDTO = tripMapper.updateTripResponseDTOOnTripUpdate(tripResponseDTO,rider);
+        TripResponseDTO tripResponseDTO = tripMapper.createTripResponseDTOOnTripAssign(trip,
+                pickUp,dropOff,riderDTO,riderUser.user_name());
+
 
         return tripResponseDTO;
     }

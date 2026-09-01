@@ -1,6 +1,7 @@
-package com.example.smartbite.store.rider_modul.internalModule.mapper;
+package com.example.smartbite.store.rider_modul.mapper;
 
-import com.example.smartbite.store.rider_modul.internalModule.DTO.RiderDTO;
+import com.example.smartbite.store.rider_modul.DTO.RiderDTO;
+import com.example.smartbite.store.rider_modul.DTO.RiderModelReplicaDTO;
 import com.example.smartbite.store.rider_modul.internalModule.model.Riders;
 import org.springframework.stereotype.Component;
 
@@ -14,4 +15,14 @@ public class RiderMapper {
         riderDTO.setGender(rider.getGender());
         return riderDTO;
     }
+
+    public RiderModelReplicaDTO entityToReplica(Riders rider){
+
+        return new RiderModelReplicaDTO(
+                rider.getId(),
+                rider.getAge(),
+                rider.getGender()
+        );
+    }
+
 }

@@ -1,12 +1,11 @@
 package com.example.smartbite.store.rider_modul.internalModule.controller;
 
 
-import com.example.smartbite.store.rider_modul.internalModule.DTO.RiderAvailableDTO;
-import com.example.smartbite.store.rider_modul.internalModule.DTO.RiderDTO;
-import com.example.smartbite.store.rider_modul.internalModule.DTO.RiderResponseDTO;
+import com.example.smartbite.store.rider_modul.DTO.RiderAvailableDTO;
+import com.example.smartbite.store.rider_modul.DTO.RiderCreateRequestDTO;
+import com.example.smartbite.store.rider_modul.DTO.RiderDTO;
 import com.example.smartbite.store.rider_modul.internalModule.service.RiderService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +24,11 @@ public class RiderController {
             return riderDTO;
     }
 
+    @PostMapping("/create-rider")
+    public RiderDTO createRider(RiderCreateRequestDTO riderCreateDTO){
+        RiderDTO rider = riderService.createRider(riderCreateDTO);
+        return rider;
+    }
 
 
 }

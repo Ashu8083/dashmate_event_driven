@@ -1,6 +1,5 @@
 package com.example.smartbite.store.trip_modul.internalModule.service.interfaces;
 
-import com.example.smartbite.store.rider_modul.internalModule.DTO.RiderDTO;
 import com.example.smartbite.store.trip_modul.DTO.ResponseModelOnCancel;
 import com.example.smartbite.store.trip_modul.DTO.TripCancelRequest;
 import com.example.smartbite.store.trip_modul.DTO.TripRequest;
@@ -15,7 +14,7 @@ public interface OrderService {
 
     TripResponseDTO createTripRequest(TripRequest tripRequestModel);
 
-    TripResponseDTO assignRider(RiderDTO rider , UUID tripId, TripResponseDTO tripResponseDTO);
+    TripResponseDTO assignRider(UUID riderId , UUID tripId);
 
     ResponseModelOnCancel cancelTripRequest(TripCancelRequest tripCancelRequest);
 

@@ -3,12 +3,11 @@ package com.example.smartbite.store.rider_modul.internalModule.service;
 
 import com.example.smartbite.store.common.execption.ResourceNotFoundException;
 import com.example.smartbite.store.payment_modul.internalModule.model.Payment;
-import com.example.smartbite.store.rider_modul.internalModule.DTO.RiderAvailableDTO;
-import com.example.smartbite.store.rider_modul.internalModule.DTO.RiderCreateRequestDTO;
-import com.example.smartbite.store.rider_modul.internalModule.DTO.RiderDTO;
-import com.example.smartbite.store.rider_modul.internalModule.DTO.RiderResponseDTO;
+import com.example.smartbite.store.rider_modul.DTO.RiderAvailableDTO;
+import com.example.smartbite.store.rider_modul.DTO.RiderCreateRequestDTO;
+import com.example.smartbite.store.rider_modul.DTO.RiderDTO;
 import com.example.smartbite.store.rider_modul.internalModule.event.RiderAvailable;
-import com.example.smartbite.store.rider_modul.internalModule.mapper.RiderMapper;
+import com.example.smartbite.store.rider_modul.mapper.RiderMapper;
 import com.example.smartbite.store.rider_modul.internalModule.model.Riders;
 import com.example.smartbite.store.rider_modul.internalModule.repo.RiderRepo;
 import com.example.smartbite.store.trip_modul.DTO.PickUpAndDropDTO;
@@ -31,31 +30,33 @@ public class RiderService {
     private final RiderMapper riderMapper;
     private final UserModuleApiImpl userModuleApi;
 
-    public RiderService(RiderRepo riderRepo,
-                        ApplicationEventPublisher applicationEventPublisher
-                        ,RiderMapper riderMapper
-                        ,UserModuleApiImpl userModuleApi ) {
+    public RiderService(RiderRepo riderRepo,ApplicationEventPublisher eventPublisher,
+                        RiderMapper riderMappaer ,UserModuleApiImpl userModuleApi  )
+    {
         this.riderRepo = riderRepo;
-        this.eventPublisher = applicationEventPublisher;
-        this.riderMapper = riderMapper;
+        this.eventPublisher = eventPublisher;
+        this.riderMapper = riderMappaer;
         this.userModuleApi = userModuleApi;
+
     }
 
-    public Riders getAvailableRider (PickUpAndDropDTO pickUpAddress,
-                                     Payment payment, UUID trip_id,
-                                     TripResponseDTO tripResponseDTO){
+
+    public Riders getAvailableRider(PickUpAndDropDTO pickUpAddress,
+                                    Payment payment, UUID trip_id,
+                                    TripResponseDTO tripResponseDTO) {
         Riders rider = new Riders();
         RiderDTO riderDTO = new RiderDTO();
         rider = riderRepo.findNearestAvailableRider(pickUpAddress.createDropDTO().latitude()
-                                                    ,pickUpAddress.createDropDTO().longitude())
-                                                    .orElseThrow(()-> new RuntimeException("Rider not found"));
+                        , pickUpAddress.createDropDTO().longitude())
+                .orElseThrow(() -> new RuntimeException("Rider not found"));
         riderDTO = riderMapper.entityToDTO(rider);
         log.info("RiderService getAvailableRider and publishing rider event");
-        eventPublisher.publishEvent(new RiderAvailable(riderDTO,trip_id,tripResponseDTO));
+        eventPublisher.publishEvent(new RiderAvailable(riderDTO, trip_id, tripResponseDTO));
         log.info("RiderService getAvailableRider and publishing rider event");
         return rider;
     }
-    public Riders markInactiveRider (Riders rider){
+
+    public Riders markInactiveRider(Riders rider) {
         log.info("RiderService markInactiveRider and publishing rider event");
         rider.setIsAvailable(false);
         riderRepo.save(rider);
@@ -64,28 +65,32 @@ public class RiderService {
     }
 
     @Transactional
-    public RiderDTO makeActiveRider (RiderAvailableDTO riderAvailable){
-        Riders rider = riderRepo.findById(riderAvailable.rider_id()).orElseThrow(()-> new ResourceNotFoundException("Rider not found"));
+    public RiderDTO makeActiveRider(RiderAvailableDTO riderAvailable) {
+        Riders rider = riderRepo.findById(riderAvailable.rider_id()).orElseThrow(() -> new ResourceNotFoundException("Rider not found"));
         log.info("RiderService makeActiveRider and publishing rider event");
         rider.setIsAvailable(true);
         log.info("RiderService makeActiveRider and publishing rider event");
 
         RiderDTO riderResponse = riderMapper.entityToDTO(rider);
-        return riderResponse ;
-    }
-    public Riders createRider (){
-
-        return riderRepo.save(new Riders());
+        return riderResponse;
     }
 
-    public RiderDTO createRider (RiderCreateRequestDTO rider){
-        Riders rider_to_store = new Riders();
+    @Transactional
+    public RiderDTO createRider(RiderCreateRequestDTO rider) {
 
-        UserModuleReplica userdto = userModuleApi.createUserModel(rider.name(),rider.Number(),rider.email());
+        UserModuleReplica userDTO = userModuleApi.createUserModel(rider.name(), rider.Number(), rider.email());
+        if (userDTO == null){
+            throw new ResourceNotFoundException("User cannot be created");
+        }
+        Riders riderModel = new Riders();
+        riderModel.setAge(rider.age());
+        riderModel.setUserId(userDTO.user_id());
+        riderModel.setGender(rider.gender());
 
-       if(userdto == null)
-       }
+        riderRepo.save(riderModel);
 
-        return new RiderDTO();
+        RiderDTO riderResponse = riderMapper.entityToDTO(riderModel);
+        return riderResponse;
     }
+
 }
