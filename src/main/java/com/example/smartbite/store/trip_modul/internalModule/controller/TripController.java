@@ -7,6 +7,7 @@ import com.example.smartbite.store.trip_modul.DTO.TripRequest;
 import com.example.smartbite.store.trip_modul.DTO.TripResponseDTO;
 import com.example.smartbite.store.trip_modul.internalModule.service.interfaces.OrderService;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -21,7 +22,7 @@ public class TripController {
     }
 
     @PostMapping("/create-trip")
-    public TripResponseDTO createTrip(TripRequest tripRequest){
+    public TripResponseDTO createTrip(@RequestBody TripRequest tripRequest){
         TripResponseDTO tripResponseDTO = orderService.createTripRequest(tripRequest);
         return tripResponseDTO;
     }
@@ -33,8 +34,8 @@ public class TripController {
     }
 
     @PostMapping("/trip-accespt")
-    public TripResponseDTO acceptTrip(UUID riderID, UUID tripID){
-        TripResponseDTO tripResponseDTO = orderService.assignRider(riderID,tripID);
+    public TripResponseDTO acceptTrip(UUID riderID, UUID tripID,UUID userID){
+        TripResponseDTO tripResponseDTO = orderService.assignRider(riderID,tripID,userID);
         return tripResponseDTO;
     }
 

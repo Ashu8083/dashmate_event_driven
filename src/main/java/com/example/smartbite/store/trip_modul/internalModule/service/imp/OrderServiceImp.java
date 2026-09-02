@@ -28,6 +28,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -64,12 +65,12 @@ public class OrderServiceImp implements OrderService {
         this.tripStop = tripStop;
     }
 
-    @Transactional
     @Override
     public TripResponseDTO createTripRequest(TripRequest tripRequest) {
 
         UserModuleReplica customer = userModuleApi.getUserModuleReplica(tripRequest.getCustomer_id());
         Trips trip = tripMapper.createTripRequestEntity(tripRequest, customer.user_id());
+        trip.setStatus(OrderStatus.PENDING);
         tripRepo.save(trip);
         TripStops tripStopsPickUp = tripMapper.createTripStopsPickUpRequestEntity(
                                       tripRequest.pickUpAndDropDTO.createPickUpDTO(),trip);
@@ -88,16 +89,16 @@ public class OrderServiceImp implements OrderService {
         return  tripResponseDTO ;
     }
 
+    @Transactional
     @Override
-    public TripResponseDTO assignRider(UUID riderId, UUID tripId) {
+    public TripResponseDTO assignRider(UUID riderId, UUID tripId,UUID userId) {
 
         Trips trip = tripRepo.findById(tripId).orElseThrow(()-> new RuntimeException("trip id not found"));
         if (trip.getStatus() != OrderStatus.PENDING){
                 throw new RuntimeException("trip not available");
         }
-
         TripAssign tripAssign = new TripAssign();
-        tripAssign.setRider_id(riderId);
+        tripAssign.setRiderId(riderId);
         tripAssign.setTrip(trip);
         tripAssign.setStatus(OrderStatus.ASSIGNED);
         RiderModelReplicaDTO riderDTO =  riderPublicAPI.getRiderReplica(riderId);
@@ -105,13 +106,13 @@ public class OrderServiceImp implements OrderService {
         trip.setStatus(OrderStatus.ASSIGNED);
         tripAssignRepo.save(tripAssign);
         tripRepo.save(trip);
-        TripStops dropOff = tripStop.findByTripIdAndStopType(trip.getId(), StopType.DROP);
-        TripStops pickUp = tripStop.findByTripIdAndStopType(trip.getId(), StopType.PICKUP);
-        UserModuleReplica riderUser = userModuleApi.getUserModuleReplica(riderId);
-
+        TripStops dropOff = tripStop.findByTripIdAndStopType(trip.getId(), StopType.DROP).orElseThrow();
+        TripStops pickUp = tripStop.findByTripIdAndStopType(trip.getId(), StopType.PICKUP).orElseThrow();
+        UserModuleReplica riderUser = userModuleApi.getUserModuleReplica(userId);
         TripResponseDTO tripResponseDTO = tripMapper.createTripResponseDTOOnTripAssign(trip,
                 pickUp,dropOff,riderDTO,riderUser.user_name());
 
+        log.info("Assign trip response successful");
 
         return tripResponseDTO;
     }
@@ -145,7 +146,7 @@ public class OrderServiceImp implements OrderService {
 
             tripRepo.save(trip);
             applicationEventPublisher.publishEvent(
-                    new TripCancelAfterAssign(tripAssignPresent.getRider_id())
+                    new TripCancelAfterAssign(tripAssignPresent.getRiderId())
             );
             return new ResponseModelOnCancel();
         }

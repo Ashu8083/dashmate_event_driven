@@ -6,11 +6,12 @@ import com.example.smartbite.store.rider_modul.internalModule.model.Riders;
 import com.example.smartbite.store.rider_modul.internalModule.repo.RiderRepo;
 import com.example.smartbite.store.rider_modul.internalModule.service.RiderService;
 import com.example.smartbite.store.rider_modul.mapper.RiderMapper;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-@Service
+@Component
 public class RiderPublicAPIImpl implements RiderPublicAPI {
 
     private final RiderRepo riderRepo;

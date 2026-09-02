@@ -56,12 +56,17 @@ public class RiderService {
         return rider;
     }
 
-    public Riders markInactiveRider(Riders rider) {
+
+    @Transactional
+    public RiderDTO makeRiderInactive(RiderAvailableDTO riderDTO) {
         log.info("RiderService markInactiveRider and publishing rider event");
+        Riders rider = riderRepo.findById(riderDTO.rider_id()).orElseThrow(() -> new ResourceNotFoundException("Rider not found"));
+
         rider.setIsAvailable(false);
         riderRepo.save(rider);
-        log.info("RiderService markInactiveRider and publishing rider event");
-        return rider;
+
+        RiderDTO riderResponse = riderMapper.entityToDTO(rider);
+        return riderResponse;
     }
 
     @Transactional
@@ -69,6 +74,9 @@ public class RiderService {
         Riders rider = riderRepo.findById(riderAvailable.rider_id()).orElseThrow(() -> new ResourceNotFoundException("Rider not found"));
         log.info("RiderService makeActiveRider and publishing rider event");
         rider.setIsAvailable(true);
+        rider.setLatitude(Double.valueOf(riderAvailable.latitude()));
+        rider.setLongitude(Double.valueOf(riderAvailable.longitude()));
+
         log.info("RiderService makeActiveRider and publishing rider event");
 
         RiderDTO riderResponse = riderMapper.entityToDTO(rider);

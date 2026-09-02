@@ -11,6 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class RiderDTO {
     public UUID id ;
+    public UUID userID;
     public Integer age;
     public Gender gender;
 }

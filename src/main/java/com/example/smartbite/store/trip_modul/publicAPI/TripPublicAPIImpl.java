@@ -1,23 +1,31 @@
 package com.example.smartbite.store.trip_modul.publicAPI;
 
+import com.example.smartbite.store.trip_modul.DTO.TripAssignModelReplica;
 import com.example.smartbite.store.trip_modul.DTO.TripModelDTO;
 import com.example.smartbite.store.trip_modul.DTO.TripResponseDTO;
+import com.example.smartbite.store.trip_modul.internalModule.enums.OrderStatus;
 import com.example.smartbite.store.trip_modul.internalModule.enums.StopType;
+import com.example.smartbite.store.trip_modul.internalModule.model.TripAssign;
 import com.example.smartbite.store.trip_modul.internalModule.model.TripStops;
 import com.example.smartbite.store.trip_modul.internalModule.model.Trips;
+import com.example.smartbite.store.trip_modul.internalModule.repo.TripAssignRepo;
 import com.example.smartbite.store.trip_modul.internalModule.repo.TripRepo;
 import com.example.smartbite.store.trip_modul.mapper.TripMapper;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.UUID;
 
+@Component
 public class TripPublicAPIImpl implements  TripPublicAPI{
 
     final private TripRepo tripRepo;
+    final private TripAssignRepo tripAssignRepo;
     final private TripMapper tripMapper;
 
-    public TripPublicAPIImpl(TripRepo tripRepo) {
+    public TripPublicAPIImpl(TripRepo tripRepo,TripAssignRepo tripAssignRepo,TripMapper tripMapper) {
         this.tripRepo = tripRepo;
+        this.tripAssignRepo = tripAssignRepo;
         this.tripMapper = new TripMapper();
     }
 
@@ -56,4 +64,14 @@ public class TripPublicAPIImpl implements  TripPublicAPI{
 
         return tripModelDTO;
     }
+
+    @Override
+    public TripAssignModelReplica getTripAssignToRider(UUID rider_id) {
+
+        tripAssignRepo.findByRiderIdAndStatus(rider_id,OrderStatus.ASSIGNED);
+        return null;
+    }
+
+
+
 }

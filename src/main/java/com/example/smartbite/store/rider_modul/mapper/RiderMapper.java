@@ -11,6 +11,7 @@ public class RiderMapper {
 
         RiderDTO riderDTO = new RiderDTO();
         riderDTO.setId(rider.getId());
+        riderDTO.setUserID(rider.getUserId());
         riderDTO.setAge(rider.getAge());
         riderDTO.setGender(rider.getGender());
         return riderDTO;

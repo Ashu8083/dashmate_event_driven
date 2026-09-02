@@ -5,6 +5,7 @@ import com.example.smartbite.store.trip_modul.internalModule.model.TripStops;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -12,6 +13,6 @@ import java.util.UUID;
 public interface TripStopRepo
         extends JpaRepository<TripStops, UUID> {
 
-    TripStops findByTripIdAndStopType(UUID tripId, StopType stopType);
+    Optional<TripStops> findByTripIdAndStopType(UUID tripId, StopType stopType);
 
 }

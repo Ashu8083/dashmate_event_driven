@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Slf4j
 public record RiderAvailable (
-   RiderDTO riderDTO,
+    RiderDTO riderDTO,
     UUID trips_id,
     TripResponseDTO tripResponseDTO
     ){

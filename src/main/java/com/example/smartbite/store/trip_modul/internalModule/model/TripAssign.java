@@ -22,7 +22,7 @@ public class TripAssign {
     private UUID id;
 
     @Column(name= "rider_id")
-    private UUID rider_id;
+    private UUID riderId;
 
     @ManyToOne
     @JoinColumn(name = "trip_id", nullable = false, unique = true)

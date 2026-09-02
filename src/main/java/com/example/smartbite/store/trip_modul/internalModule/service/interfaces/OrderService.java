@@ -14,10 +14,9 @@ public interface OrderService {
 
     TripResponseDTO createTripRequest(TripRequest tripRequestModel);
 
-    TripResponseDTO assignRider(UUID riderId , UUID tripId);
+    TripResponseDTO assignRider(UUID riderId , UUID tripId ,UUID userId);
 
     ResponseModelOnCancel cancelTripRequest(TripCancelRequest tripCancelRequest);
-
 
 
 }

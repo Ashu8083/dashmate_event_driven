@@ -18,17 +18,24 @@ public class RiderController {
     public RiderController(RiderService riderService){
         this.riderService = riderService;
     }
-    @PostMapping("/rider-available")
+    @PostMapping("/mark-rider-available")
     public RiderDTO makeRiderAvailable(RiderAvailableDTO riderAvailableDTO){
             RiderDTO riderDTO = riderService.makeActiveRider(riderAvailableDTO);
             return riderDTO;
     }
 
-    @PostMapping("/create-rider")
+    @PostMapping("/create-rider-profile")
     public RiderDTO createRider(RiderCreateRequestDTO riderCreateDTO){
         RiderDTO rider = riderService.createRider(riderCreateDTO);
         return rider;
     }
+
+    @PostMapping("/mark-rider-unavailable")
+    public RiderDTO makeRiderUnavailable(RiderAvailableDTO riderAvailableDTO){
+        RiderDTO rider = riderService.makeRiderInactive(riderAvailableDTO);
+        return rider;
+    }
+
 
 
 }

@@ -6,5 +6,4 @@ public enum OrderStatus {
     ASSIGNED,
     DELIVERED,
     OUT_FOR_DELIVERY
-
 }
