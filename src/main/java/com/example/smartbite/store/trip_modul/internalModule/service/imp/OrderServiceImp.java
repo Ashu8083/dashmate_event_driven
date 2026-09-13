@@ -84,6 +84,8 @@ public class OrderServiceImp implements OrderService {
         applicationEventPublisher.publishEvent(new TripAvailableEvent(tripRequest.package_description
                                                                      ,tripRequest.pickUpAndDropDTO,
                                                                       trip.getId(),payment,tripResponseDTO  ));
+
+
         log.info("Trip Publish Event Published ");
 
         return  tripResponseDTO ;

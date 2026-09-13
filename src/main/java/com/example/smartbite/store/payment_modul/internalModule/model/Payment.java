@@ -1,6 +1,7 @@
 package com.example.smartbite.store.payment_modul.internalModule.model;
 
 
+import com.example.smartbite.store.trip_modul.internalModule.enums.OrderStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -29,4 +30,11 @@ public class Payment {
 
     @Column(name = "is_payment_successful")
     private Boolean is_payment_successful;
+
+    @Column(name = "payment_unique_id")
+    private String payment_unique_id;
+
+    @Column(name = "status")
+    private OrderStatus status;
+
 }
