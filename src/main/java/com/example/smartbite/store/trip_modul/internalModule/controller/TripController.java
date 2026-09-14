@@ -1,6 +1,7 @@
 package com.example.smartbite.store.trip_modul.internalModule.controller;
 
 
+import com.example.smartbite.store.helper_service.ChargeCalculation;
 import com.example.smartbite.store.trip_modul.DTO.ResponseModelOnCancel;
 import com.example.smartbite.store.trip_modul.DTO.TripCancelRequest;
 import com.example.smartbite.store.trip_modul.DTO.TripRequest;
@@ -16,9 +17,16 @@ import java.util.UUID;
 public class TripController {
 
     private final OrderService orderService;
+    private final ChargeCalculation chargeCalculation;
 
-    public TripController(OrderService orderService) {
+    public TripController(OrderService orderService,  ChargeCalculation chargeCalculation) {
         this.orderService = orderService;
+        this.chargeCalculation = chargeCalculation;
+    }
+
+    @PostMapping("/calculate-fare-estimate")
+    public Float calculateFare(@RequestBody TripRequest tripRequest){
+        return chargeCalculation.chargeCalculate();
     }
 
     @PostMapping("/create-trip")
@@ -33,10 +41,5 @@ public class TripController {
         return  tripResponseDTO;
     }
 
-    @PostMapping("/trip-accespt")
-    public TripResponseDTO acceptTrip(UUID riderID, UUID tripID,UUID userID){
-        TripResponseDTO tripResponseDTO = orderService.assignRider(riderID,tripID,userID);
-        return tripResponseDTO;
-    }
 
 }

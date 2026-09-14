@@ -1,13 +1,13 @@
 package com.example.smartbite.store.trip_modul.internalModule.service.imp;
 
+import com.example.smartbite.store.common.execption.ResourceNotFoundException;
+import com.example.smartbite.store.helper_service.ChargeCalculation;
 import com.example.smartbite.store.payment_modul.internalModule.model.Payment;
 import com.example.smartbite.store.rider_modul.DTO.RiderDTO;
 import com.example.smartbite.store.rider_modul.DTO.RiderModelReplicaDTO;
+import com.example.smartbite.store.rider_modul.DTO.RiderResponseDTO;
 import com.example.smartbite.store.rider_modul.publicAPi.RiderPublicAPIImpl;
-import com.example.smartbite.store.trip_modul.DTO.ResponseModelOnCancel;
-import com.example.smartbite.store.trip_modul.DTO.TripCancelRequest;
-import com.example.smartbite.store.trip_modul.DTO.TripRequest;
-import com.example.smartbite.store.trip_modul.DTO.TripResponseDTO;
+import com.example.smartbite.store.trip_modul.DTO.*;
 import com.example.smartbite.store.trip_modul.internalModule.enums.OrderStatus;
 import com.example.smartbite.store.trip_modul.internalModule.enums.StopType;
 import com.example.smartbite.store.trip_modul.internalModule.event.TripAvailableEvent;
@@ -45,11 +45,12 @@ public class OrderServiceImp implements OrderService {
     private final UserModuleApiImpl userModuleApi;
     private final RiderPublicAPIImpl riderPublicAPI;
     private final TripMapper tripMapper;
-    private final TripStopRepo tripStop;
+    private final TripStopRepo tripStopRepo;
 
     public OrderServiceImp(
             ApplicationEventPublisher applicationEventPublisher,
             TripRepo tripRepo, TripAssignRepo tripAssignRepo,
+            TripStopRepo tripStopRepo,
             UserModuleApiImpl userModuleApi , PaymentProvider paymentProvider,
             TripMapper tripMapper, TripStopRepo tripStop,
             RiderPublicAPIImpl riderPublicAPI
@@ -59,41 +60,60 @@ public class OrderServiceImp implements OrderService {
         this.tripRepo = tripRepo;
         this.tripAssignRepo = tripAssignRepo;
         this.userModuleApi = userModuleApi;
+        this.tripStopRepo = tripStopRepo;
         this.riderPublicAPI = riderPublicAPI;
         this.paymentProvider = paymentProvider;
         this.tripMapper = tripMapper;
-        this.tripStop = tripStop;
     }
 
+    @Transactional
     @Override
     public TripResponseDTO createTripRequest(TripRequest tripRequest) {
 
-        UserModuleReplica customer = userModuleApi.getUserModuleReplica(tripRequest.getCustomer_id());
-        Trips trip = tripMapper.createTripRequestEntity(tripRequest, customer.user_id());
+        Trips trip  = new Trips();
+        TripStops pickUpTripStop = new TripStops();
+        TripStops dropOffTripStop = new TripStops();
+
+        CreateDropDTO dropOffRequest = tripRequest.getPickUpAndDropDTO().createDropDTO();
+
+
+        UserModuleReplica userModuleReplica = userModuleApi.getUserModuleReplica(tripRequest.customer_id);
+
+        if (userModuleReplica == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        trip.setCustomerId(userModuleReplica.user_id());
+        trip.setPackage_description(tripRequest.getPackage_description());
+        trip.setScheduled_at(tripRequest.getScheduled_time());
+
+        pickUpTripStop.setAddress(tripRequest.getPickUpAndDropDTO().createPickUpDTO().address());
+        pickUpTripStop.setLatitude(tripRequest.getPickUpAndDropDTO().createPickUpDTO().latitude());
+        pickUpTripStop.setLongitude(tripRequest.getPickUpAndDropDTO().createPickUpDTO().longitude());
+        pickUpTripStop.setStopType(tripRequest.getPickUpAndDropDTO().createPickUpDTO().stopType());
+
+
+        dropOffTripStop.setAddress(dropOffRequest.address());
+        dropOffTripStop.setLatitude(dropOffRequest.latitude());
+        dropOffTripStop.setLongitude(dropOffRequest.longitude());
+        dropOffTripStop.setStopType(dropOffRequest.stopType());
+
+        TripStops tripPickUp =   tripStopRepo.save(pickUpTripStop);
+        TripStops tripDropOff = tripStopRepo.save(dropOffTripStop);
+
+        trip.setPickupId(tripPickUp.getId());
+        trip.setDropOffId(tripDropOff.getId());
         trip.setStatus(OrderStatus.PENDING);
         tripRepo.save(trip);
-        TripStops tripStopsPickUp = tripMapper.createTripStopsPickUpRequestEntity(
-                                      tripRequest.pickUpAndDropDTO.createPickUpDTO(),trip);
-        tripStop.save(tripStopsPickUp);
-        TripStops tripStopsDropOff = tripMapper.createTripStopDropOffRequestEntity(
-                                            tripRequest.pickUpAndDropDTO.createDropDTO(),trip);
-        tripStop.save(tripStopsDropOff);
-        log.info("Create trip request successful");
-        Payment payment  = paymentProvider.getPayment(tripRequest.getPayment_id());
-        TripResponseDTO tripResponseDTO = tripMapper.createTripResponseDTOOnTripCreate(trip ,tripStopsPickUp,tripStopsDropOff);
-        applicationEventPublisher.publishEvent(new TripAvailableEvent(tripRequest.package_description
-                                                                     ,tripRequest.pickUpAndDropDTO,
-                                                                      trip.getId(),payment,tripResponseDTO  ));
 
-
-        log.info("Trip Publish Event Published ");
+        TripResponseDTO tripResponseDTO = tripMapper.createTripResponseDTOOnTripAssign(trip,tripPickUp,tripDropOff);
 
         return  tripResponseDTO ;
     }
 
     @Transactional
     @Override
-    public TripResponseDTO assignRider(UUID riderId, UUID tripId,UUID userId) {
+    public TripResponseDTO assignRider(UUID riderId, UUID tripId) {
 
         Trips trip = tripRepo.findById(tripId).orElseThrow(()-> new RuntimeException("trip id not found"));
         if (trip.getStatus() != OrderStatus.PENDING){
@@ -104,19 +124,23 @@ public class OrderServiceImp implements OrderService {
         tripAssign.setTrip(trip);
         tripAssign.setStatus(OrderStatus.ASSIGNED);
         RiderModelReplicaDTO riderDTO =  riderPublicAPI.getRiderReplica(riderId);
+        if (riderDTO == null ) {
+            throw new ResourceNotFoundException("Rider not found");
+        }
+
         trip.setTripAssign(tripAssign);
         trip.setStatus(OrderStatus.ASSIGNED);
         tripAssignRepo.save(tripAssign);
         tripRepo.save(trip);
-        TripStops dropOff = tripStop.findByTripIdAndStopType(trip.getId(), StopType.DROP).orElseThrow();
-        TripStops pickUp = tripStop.findByTripIdAndStopType(trip.getId(), StopType.PICKUP).orElseThrow();
-        UserModuleReplica riderUser = userModuleApi.getUserModuleReplica(userId);
-        TripResponseDTO tripResponseDTO = tripMapper.createTripResponseDTOOnTripAssign(trip,
-                pickUp,dropOff,riderDTO,riderUser.user_name());
+        UserModuleReplica riderUser = userModuleApi.getUserModuleReplica(riderDTO.user_id());
+//        TripResponseDTO tripResponseDTO = tripMapper.createTripResponseDTOOnTripAssign(trip,
+//               riderDTO,riderUser.user_name());
+        RiderAssigned riderAssignedDTO = tripMapper.createRiderAssignedDTO(riderUser.user_name()
+                                                                            ,riderDTO.gander(),riderDTO.age());
 
         log.info("Assign trip response successful");
 
-        return tripResponseDTO;
+        return null;
     }
 
     @Override

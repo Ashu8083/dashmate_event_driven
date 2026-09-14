@@ -6,6 +6,7 @@ import com.example.smartbite.store.payment_modul.internalModule.model.Payment;
 import com.example.smartbite.store.rider_modul.DTO.RiderAvailableDTO;
 import com.example.smartbite.store.rider_modul.DTO.RiderCreateRequestDTO;
 import com.example.smartbite.store.rider_modul.DTO.RiderDTO;
+import com.example.smartbite.store.rider_modul.DTO.RiderModelReplicaDTO;
 import com.example.smartbite.store.rider_modul.internalModule.event.RiderAvailable;
 import com.example.smartbite.store.rider_modul.mapper.RiderMapper;
 import com.example.smartbite.store.rider_modul.internalModule.model.Riders;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -41,21 +43,28 @@ public class RiderService {
     }
 
 
-    public Riders getAvailableRider(PickUpAndDropDTO pickUpAddress,
-                                    Payment payment, UUID trip_id,
-                                    TripResponseDTO tripResponseDTO) {
-        Riders rider = new Riders();
-        RiderDTO riderDTO = new RiderDTO();
-        rider = riderRepo.findNearestAvailableRider(pickUpAddress.createDropDTO().latitude()
-                        , pickUpAddress.createDropDTO().longitude())
-                .orElseThrow(() -> new RuntimeException("Rider not found"));
-        riderDTO = riderMapper.entityToDTO(rider);
-        log.info("RiderService getAvailableRider and publishing rider event");
-        eventPublisher.publishEvent(new RiderAvailable(riderDTO, trip_id, tripResponseDTO));
-        log.info("RiderService getAvailableRider and publishing rider event");
-        return rider;
+//    public RiderModelReplicaDTO getAvailableRider(PickUpAndDropDTO pickUpAddress,
+//                                    Payment payment, UUID trip_id,
+//                                    TripResponseDTO tripResponseDTO) {
+//        Riders rider = new Riders();
+//        RiderDTO riderDTO = new RiderDTO();
+//        rider = riderRepo.findNearestAvailableRider(pickUpAddress.createDropDTO().latitude()
+//                        , pickUpAddress.createDropDTO().longitude())
+//                .orElseThrow(() -> new RuntimeException("Rider not found"));
+//        riderDTO = riderMapper.entityToDTO(rider);
+//        log.info("RiderService getAvailableRider and publishing rider event");
+//        eventPublisher.publishEvent(new RiderAvailable(riderDTO, trip_id, tripResponseDTO));
+//        log.info("RiderService getAvailableRider and publishing rider event");
+//
+//        RiderModelReplicaDTO riderModelReplicaDTO = riderMapper.entityToReplica(rider);
+//        return riderModelReplicaDTO;
+//    }
+//
+    public RiderModelReplicaDTO getAvailableRider(TripResponseDTO trip,PickUpAndDropDTO pickUpAddress) {
+        Riders rider = riderRepo.findNearestAvailableRider(pickUpAddress.createPickUpDTO().latitude(),pickUpAddress.createPickUpDTO()
+                                        .longitude()).orElseThrow(() -> new ResourceNotFoundException("rider not available"));
+        return  riderMapper.entityToReplica(rider);
     }
-
 
     @Transactional
     public RiderDTO makeRiderInactive(RiderAvailableDTO riderDTO) {

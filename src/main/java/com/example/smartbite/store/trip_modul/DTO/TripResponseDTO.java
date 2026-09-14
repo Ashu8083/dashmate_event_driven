@@ -15,14 +15,11 @@ import java.util.UUID;
 @AllArgsConstructor
 public class TripResponseDTO {
 
-    public UUID customerId;
     public UUID tripId;
-    public String RiderName = null;
-    public UUID riderId;
-    public Gender rider_gander;
-    public OrderStatus orderStatus;
+    public Float Charges = null;
     public String package_description;
     public String pickUpAddress;
+    public OrderStatus orderStatus;
     public Map<String,Double> pickUpLocations;
     public String dropOffAddress;
     public Map<String,Double> dropOffLocations;

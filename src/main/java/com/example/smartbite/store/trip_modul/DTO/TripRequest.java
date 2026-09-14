@@ -13,7 +13,6 @@ import java.util.UUID;
 public class TripRequest {
 
     public UUID customer_id;
-    public UUID payment_id;
     public String package_description;
     public Instant scheduled_time;
     public PickUpAndDropDTO pickUpAndDropDTO;

@@ -21,6 +21,7 @@ public class RiderMapper {
 
         return new RiderModelReplicaDTO(
                 rider.getId(),
+                rider.getUserId(),
                 rider.getAge(),
                 rider.getGender()
         );

@@ -28,9 +28,7 @@ public class Riders {
             unique = true
     )
     private UUID userId;
-
 // test for git commit
-
     @Column(name = "age")
     private Integer age;
 

@@ -1,5 +1,6 @@
 server:
   port : 8083
+
 spring :
   datasource :
     url : jdbc:postgresql://localhost:5432/dashmate
@@ -11,6 +12,8 @@ spring :
   flyway:
     enabled: true
     locations: classpath:db/migration
+  kafka:
+    bootstrap-servers: 100.116.57.13:9092
     
 logging:
     level:

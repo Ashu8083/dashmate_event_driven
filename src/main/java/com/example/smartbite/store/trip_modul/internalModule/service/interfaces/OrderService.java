@@ -10,13 +10,7 @@ import java.util.UUID;
 
 
 public interface OrderService {
-
-
     TripResponseDTO createTripRequest(TripRequest tripRequestModel);
-
-    TripResponseDTO assignRider(UUID riderId , UUID tripId ,UUID userId);
-
+    TripResponseDTO assignRider(UUID riderId, UUID tripId);
     ResponseModelOnCancel cancelTripRequest(TripCancelRequest tripCancelRequest);
-
-
 }

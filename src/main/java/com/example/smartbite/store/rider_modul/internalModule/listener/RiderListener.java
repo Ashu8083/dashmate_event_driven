@@ -17,8 +17,6 @@ public class RiderListener {
     @EventListener
     public void onTripRequestCreate(TripAvailableEvent event) {
         log.info("Received trip available event: {}", event);
-        riderService.getAvailableRider(event.pickUpAndDropDTO()
-                                        ,event.payment(),event.trip_id(),event.tripResponseDTO());
 
     }
 }

@@ -3,6 +3,7 @@ package com.example.smartbite.store.trip_modul.mapper;
 
 import com.example.smartbite.store.rider_modul.DTO.RiderDTO;
 import com.example.smartbite.store.rider_modul.DTO.RiderModelReplicaDTO;
+import com.example.smartbite.store.rider_modul.internalModule.enums.Gender;
 import com.example.smartbite.store.trip_modul.DTO.*;
 import com.example.smartbite.store.trip_modul.internalModule.enums.OrderStatus;
 import com.example.smartbite.store.trip_modul.internalModule.enums.StopType;
@@ -39,7 +40,6 @@ public class TripMapper {
 
         //Assign Value to the DTO
         tripResponseDTO.setTripId(trip.getId());
-        tripResponseDTO.setCustomerId(trip.getCustomerId());
         tripResponseDTO.setPackage_description(trip.getPackage_description());
         tripResponseDTO.setPickUpAddress(pickUpAddress.getAddress());
         tripResponseDTO.setPickUpLocations(pickuplocation);
@@ -47,16 +47,14 @@ public class TripMapper {
         tripResponseDTO.setDropOffAddress(dropOffAddress.getAddress());
 
         //Set rider info null for the first time
-        tripResponseDTO.setRiderId(null);
-        tripResponseDTO.setRiderName(null);
-        tripResponseDTO.setRider_gander(null);
+
         tripResponseDTO.setOrderStatus(OrderStatus.PENDING);
 
         return tripResponseDTO;
     }
 
     public TripResponseDTO createTripResponseDTOOnTripAssign(Trips trip, TripStops pickUpAddress,
-                                                             TripStops dropOffAddress, RiderModelReplicaDTO riderDTO, String riderName) {
+                                                             TripStops dropOffAddress) {
 
 
         TripResponseDTO tripResponseDTO = new TripResponseDTO();
@@ -71,7 +69,6 @@ public class TripMapper {
 
         //Assign Value to the DTO
         tripResponseDTO.setTripId(trip.getId());
-        tripResponseDTO.setCustomerId(trip.getCustomerId());
         tripResponseDTO.setPackage_description(trip.getPackage_description());
         tripResponseDTO.setPickUpAddress(pickUpAddress.getAddress());
         tripResponseDTO.setPickUpLocations(pickuplocation);
@@ -79,9 +76,6 @@ public class TripMapper {
         tripResponseDTO.setDropOffAddress(dropOffAddress.getAddress());
 
         //Set rider info null for the first time
-        tripResponseDTO.setRiderId(riderDTO.rider_id());
-        tripResponseDTO.setRiderName(riderName);
-        tripResponseDTO.setRider_gander(riderDTO.gander());
         tripResponseDTO.setOrderStatus(OrderStatus.ASSIGNED);
 
         return  tripResponseDTO;
@@ -120,9 +114,6 @@ public class TripMapper {
     }
 
     public TripResponseDTO updateTripResponseDTOOnTripUpdate(TripResponseDTO tripResponseDTO, RiderDTO rider) {
-
-        tripResponseDTO.setRiderId(rider.getId());
-        tripResponseDTO.setRider_gander(rider.getGender());
         tripResponseDTO.setOrderStatus(OrderStatus.ASSIGNED);
         return tripResponseDTO;
 
@@ -153,9 +144,24 @@ public class TripMapper {
         return tripStops;
     }
 
+    public RiderAssigned createRiderAssignedDTO(String riderName, Gender rider_gender , Integer rider_age ){
+        RiderAssigned riderAssigned = new RiderAssigned();
+        if(rider_age == null){
+            rider_age = 0;
+        }
+        riderAssigned.setAge(rider_age);
+        riderAssigned.setGender(rider_gender);
+        riderAssigned.setRiderName(riderName);
+        return riderAssigned;
+    }
 
+    public TripUpdateOnRiderAssigned createTripResponseOnRiderAssignedDTO(TripResponseDTO tripResponse, RiderAssigned riderAssigned) {
+                return  new TripUpdateOnRiderAssigned(
+                        tripResponse,
+                        riderAssigned
+                );
 
-
+    }
 
 
 }

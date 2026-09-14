@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public record RiderModelReplicaDTO(
         UUID rider_id,
+        UUID user_id,
         Integer age,
         Gender gander
 ) {
