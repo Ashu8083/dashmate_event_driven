@@ -79,9 +79,16 @@ public class RiderService {
     }
 
     @Transactional
-    public RiderDTO makeActiveRider(RiderAvailableDTO riderAvailable) {
+    public RiderDTO makeActiveRiderAndInactive(RiderAvailableDTO riderAvailable) {
         Riders rider = riderRepo.findById(riderAvailable.rider_id()).orElseThrow(() -> new ResourceNotFoundException("Rider not found"));
         log.info("RiderService makeActiveRider and publishing rider event");
+
+        if (rider.getIsAvailable()){
+            rider.setIsAvailable(false);
+            RiderDTO riderResponse = riderMapper.entityToDTO(rider);
+            return riderResponse;
+        }
+
         rider.setIsAvailable(true);
         rider.setLatitude(Double.valueOf(riderAvailable.latitude()));
         rider.setLongitude(Double.valueOf(riderAvailable.longitude()));
@@ -99,12 +106,17 @@ public class RiderService {
         if (userDTO == null){
             throw new ResourceNotFoundException("User cannot be created");
         }
+
         Riders riderModel = new Riders();
+
         riderModel.setAge(rider.age());
         riderModel.setUserId(userDTO.user_id());
         riderModel.setGender(rider.gender());
+
         riderRepo.save(riderModel);
+
         RiderDTO riderResponse = riderMapper.entityToDTO(riderModel);
+
         return riderResponse;
     }
 

@@ -16,17 +16,13 @@ public class TripConsumer {
         this.riderService = riderService;
     }
 
-
     @KafkaListener(
             topics = "trip-event",
             groupId = "rider-service"
     )
     public void listenTripCreateEvent(TripCreateEvent tripCreateEvent) {
             riderService.getAvailableRider(tripCreateEvent.pickUpAndDropDTO());
-
-
     }
-
 
     @KafkaListener(
             topics = "trip-event",
