@@ -9,7 +9,6 @@ import java.util.UUID;
 public record TripCreateEvent(
         String package_description,
         PickUpAndDropDTO pickUpAndDropDTO,
-        UUID trip_id, Payment payment,
-        TripResponseDTO tripResponseDTO
+        UUID trip_id, Float payment
 ) {
 }

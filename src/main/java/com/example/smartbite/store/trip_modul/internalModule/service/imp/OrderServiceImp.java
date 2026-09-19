@@ -2,6 +2,9 @@ package com.example.smartbite.store.trip_modul.internalModule.service.imp;
 
 import com.example.smartbite.store.common.execption.ResourceNotFoundException;
 import com.example.smartbite.store.helper_service.ChargeCalculation;
+import com.example.smartbite.store.kafaka.consumer.RiderConsumer;
+import com.example.smartbite.store.kafaka.events.TripCreateEvent;
+import com.example.smartbite.store.kafaka.producer.TripProducer;
 import com.example.smartbite.store.payment_modul.internalModule.model.Payment;
 import com.example.smartbite.store.rider_modul.DTO.RiderDTO;
 import com.example.smartbite.store.rider_modul.DTO.RiderModelReplicaDTO;
@@ -40,6 +43,7 @@ public class OrderServiceImp implements OrderService {
 
     private final ApplicationEventPublisher applicationEventPublisher;
     private final TripRepo tripRepo;
+    private final TripProducer tripProducer;
     private final TripAssignRepo tripAssignRepo;
     private final PaymentProvider paymentProvider;
     private final UserModuleApiImpl userModuleApi;
@@ -51,6 +55,7 @@ public class OrderServiceImp implements OrderService {
             ApplicationEventPublisher applicationEventPublisher,
             TripRepo tripRepo, TripAssignRepo tripAssignRepo,
             TripStopRepo tripStopRepo,
+            TripProducer tripProducer,
             UserModuleApiImpl userModuleApi , PaymentProvider paymentProvider,
             TripMapper tripMapper, TripStopRepo tripStop,
             RiderPublicAPIImpl riderPublicAPI
@@ -59,6 +64,7 @@ public class OrderServiceImp implements OrderService {
         this.applicationEventPublisher = applicationEventPublisher;
         this.tripRepo = tripRepo;
         this.tripAssignRepo = tripAssignRepo;
+        this.tripProducer = tripProducer;
         this.userModuleApi = userModuleApi;
         this.tripStopRepo = tripStopRepo;
         this.riderPublicAPI = riderPublicAPI;
@@ -107,6 +113,10 @@ public class OrderServiceImp implements OrderService {
         tripRepo.save(trip);
 
         TripResponseDTO tripResponseDTO = tripMapper.createTripResponseDTOOnTripAssign(trip,tripPickUp,tripDropOff);
+
+        TripCreateEvent tripCreateEvent = tripMapper.createTripCreateEventDTO(trip,tripRequest.pickUpAndDropDTO);
+
+        tripProducer.sendTripCreateEvent(tripCreateEvent);
 
         return  tripResponseDTO ;
     }

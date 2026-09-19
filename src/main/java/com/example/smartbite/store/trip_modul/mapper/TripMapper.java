@@ -1,5 +1,6 @@
 package com.example.smartbite.store.trip_modul.mapper;
 
+import com.example.smartbite.store.kafaka.events.TripCreateEvent;
 import com.example.smartbite.store.rider_modul.DTO.RiderDTO;
 import com.example.smartbite.store.rider_modul.internalModule.enums.Gender;
 import com.example.smartbite.store.trip_modul.DTO.*;
@@ -159,6 +160,16 @@ public class TripMapper {
                         riderAssigned
                 );
 
+    }
+
+    public TripCreateEvent createTripCreateEventDTO(Trips trip, PickUpAndDropDTO pickUpAndDropDTO ) {
+        return  new TripCreateEvent(
+                trip.getPackage_description(),
+                pickUpAndDropDTO,
+                trip.getId(),
+                120.0f
+
+        );
     }
 
 

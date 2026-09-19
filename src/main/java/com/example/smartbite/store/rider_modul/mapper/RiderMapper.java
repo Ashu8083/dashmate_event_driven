@@ -5,6 +5,8 @@ import com.example.smartbite.store.rider_modul.DTO.RiderModelReplicaDTO;
 import com.example.smartbite.store.rider_modul.internalModule.model.Riders;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class RiderMapper {
     public RiderDTO entityToDTO(Riders rider){
@@ -25,6 +27,10 @@ public class RiderMapper {
                 rider.getAge(),
                 rider.getGender()
         );
+    }
+
+    public List<RiderModelReplicaDTO> entityToReplicas(List<Riders> riders){
+        return riders.stream().map(this::entityToReplica).toList();
     }
 
 }

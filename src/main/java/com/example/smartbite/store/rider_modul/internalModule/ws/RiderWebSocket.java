@@ -1,8 +1,12 @@
 package com.example.smartbite.store.rider_modul.internalModule.ws;
 
+import com.example.smartbite.store.config.WebSocketRequest;
+import com.example.smartbite.store.rider_modul.internalModule.RiderSessionManager.RiderSessionAManager;
 import com.example.smartbite.store.rider_modul.internalModule.service.RiderService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Comment;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHandler;
@@ -10,28 +14,43 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.util.UUID;
 
 
 @Slf4j
 @Component
 public class RiderWebSocket extends TextWebSocketHandler {
 
-    private final RiderService riderService;
-    public RiderWebSocket(RiderService riderService) {
-        this.riderService = riderService;
+    @Autowired
+    RiderSessionAManager riderSessionManager;
+
+    @Autowired
+    RiderWebSocketMessageDispatcher  dispatcher;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) {
+        UUID riderId =
+                (UUID) session.getAttributes().get("userID");
+        riderSessionManager.add(riderId, session);
     }
 
     @Override
     protected void handleTextMessage(
             WebSocketSession session,
-            TextMessage message) throws IOException {
+            TextMessage message
+            ) throws IOException {
+
         String payload = message.getPayload();
         log.info("Received message: {}", payload);
-
+        WebSocketRequest request = objectMapper.readValue(payload, WebSocketRequest.class);
+        dispatcher.dispatch(session,request);
         session.sendMessage(
                 new TextMessage(payload)
         );
-
     }
+
 
 }

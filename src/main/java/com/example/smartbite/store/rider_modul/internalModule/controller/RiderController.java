@@ -21,7 +21,7 @@ public class RiderController {
     }
     @PostMapping("/mark-rider-available")
     public ResponseEntity<APIResponse> makeRiderAvailable(RiderAvailableDTO riderAvailableDTO){
-            RiderDTO riderDTO = riderService.makeActiveRider(riderAvailableDTO);
+            RiderDTO riderDTO = riderService.makeActiveRiderAndInactive(riderAvailableDTO);
 
             return ResponseEntity.ok(
                     new APIResponse<>(
@@ -44,16 +44,16 @@ public class RiderController {
         );
     }
 
-    @PostMapping("/mark-rider-unavailable")
-    public ResponseEntity<APIResponse> makeRiderUnavailable(RiderAvailableDTO riderAvailableDTO){
-        RiderDTO rider = riderService.makeRiderInactive(riderAvailableDTO);
-        return  ResponseEntity.ok(
-                new APIResponse<>(
-                        true,
-                        "Rider mark as Inactivate", rider
-                )
-        );
-    }
+//    @PostMapping("/mark-rider-unavailable")
+//    public ResponseEntity<APIResponse> makeRiderUnavailable(RiderAvailableDTO riderAvailableDTO){
+//        RiderDTO rider = riderService.makeRiderInactive(riderAvailableDTO);
+//        return  ResponseEntity.ok(
+//                new APIResponse<>(
+//                        true,
+//                        "Rider mark as Inactivate", rider
+//                )
+//        );
+//    }
 
 
 
