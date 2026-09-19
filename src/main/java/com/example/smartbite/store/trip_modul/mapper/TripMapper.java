@@ -1,8 +1,6 @@
 package com.example.smartbite.store.trip_modul.mapper;
 
-
 import com.example.smartbite.store.rider_modul.DTO.RiderDTO;
-import com.example.smartbite.store.rider_modul.DTO.RiderModelReplicaDTO;
 import com.example.smartbite.store.rider_modul.internalModule.enums.Gender;
 import com.example.smartbite.store.trip_modul.DTO.*;
 import com.example.smartbite.store.trip_modul.internalModule.enums.OrderStatus;

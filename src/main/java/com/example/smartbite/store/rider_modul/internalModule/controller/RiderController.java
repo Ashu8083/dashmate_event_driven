@@ -1,11 +1,13 @@
 package com.example.smartbite.store.rider_modul.internalModule.controller;
 
 
+import com.example.smartbite.store.common.element.APIResponse;
 import com.example.smartbite.store.rider_modul.DTO.RiderAvailableDTO;
 import com.example.smartbite.store.rider_modul.DTO.RiderCreateRequestDTO;
 import com.example.smartbite.store.rider_modul.DTO.RiderDTO;
 import com.example.smartbite.store.rider_modul.internalModule.service.RiderService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,27 +16,46 @@ import org.springframework.web.bind.annotation.RestController;
 public class RiderController {
     final private RiderService riderService;
 
-
     public RiderController(RiderService riderService){
         this.riderService = riderService;
     }
     @PostMapping("/mark-rider-available")
-    public RiderDTO makeRiderAvailable(RiderAvailableDTO riderAvailableDTO){
+    public ResponseEntity<APIResponse> makeRiderAvailable(RiderAvailableDTO riderAvailableDTO){
             RiderDTO riderDTO = riderService.makeActiveRider(riderAvailableDTO);
-            return riderDTO;
+
+            return ResponseEntity.ok(
+                    new APIResponse<>(
+                            true,
+                            "Mark as activate",
+                                    riderDTO
+                    )
+            );
     }
 
     @PostMapping("/create-rider-profile")
-    public RiderDTO createRider(RiderCreateRequestDTO riderCreateDTO){
+    public ResponseEntity<APIResponse> createRider(RiderCreateRequestDTO riderCreateDTO){
         RiderDTO rider = riderService.createRider(riderCreateDTO);
-        return rider;
+        return ResponseEntity .ok(
+                new APIResponse<>(
+                        true,
+                        "Rider profile crated successfully",
+                                rider
+                )
+        );
     }
 
     @PostMapping("/mark-rider-unavailable")
-    public RiderDTO makeRiderUnavailable(RiderAvailableDTO riderAvailableDTO){
+    public ResponseEntity<APIResponse> makeRiderUnavailable(RiderAvailableDTO riderAvailableDTO){
         RiderDTO rider = riderService.makeRiderInactive(riderAvailableDTO);
-        return rider;
+        return  ResponseEntity.ok(
+                new APIResponse<>(
+                        true,
+                        "Rider mark as Inactivate", rider
+                )
+        );
     }
+
+
 
 
 

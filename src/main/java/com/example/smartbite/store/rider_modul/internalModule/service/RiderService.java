@@ -42,7 +42,6 @@ public class RiderService {
 
     }
 
-
 //    public RiderModelReplicaDTO getAvailableRider(PickUpAndDropDTO pickUpAddress,
 //                                    Payment payment, UUID trip_id,
 //                                    TripResponseDTO tripResponseDTO) {
@@ -60,11 +59,12 @@ public class RiderService {
 //        return riderModelReplicaDTO;
 //    }
 //
-    public RiderModelReplicaDTO getAvailableRider(TripResponseDTO trip,PickUpAndDropDTO pickUpAddress) {
+    public RiderModelReplicaDTO getAvailableRider(PickUpAndDropDTO pickUpAddress) {
         Riders rider = riderRepo.findNearestAvailableRider(pickUpAddress.createPickUpDTO().latitude(),pickUpAddress.createPickUpDTO()
                                         .longitude()).orElseThrow(() -> new ResourceNotFoundException("rider not available"));
         return  riderMapper.entityToReplica(rider);
     }
+
 
     @Transactional
     public RiderDTO makeRiderInactive(RiderAvailableDTO riderDTO) {
@@ -103,9 +103,7 @@ public class RiderService {
         riderModel.setAge(rider.age());
         riderModel.setUserId(userDTO.user_id());
         riderModel.setGender(rider.gender());
-
         riderRepo.save(riderModel);
-
         RiderDTO riderResponse = riderMapper.entityToDTO(riderModel);
         return riderResponse;
     }
