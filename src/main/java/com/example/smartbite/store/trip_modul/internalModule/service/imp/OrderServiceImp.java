@@ -93,12 +93,15 @@ public class OrderServiceImp implements OrderService {
         trip.setPackage_description(tripRequest.getPackage_description());
         trip.setScheduled_at(tripRequest.getScheduled_time());
 
+        tripRepo.save(trip);
+
+        pickUpTripStop.setTrip(trip);
         pickUpTripStop.setAddress(tripRequest.getPickUpAndDropDTO().createPickUpDTO().address());
         pickUpTripStop.setLatitude(tripRequest.getPickUpAndDropDTO().createPickUpDTO().latitude());
         pickUpTripStop.setLongitude(tripRequest.getPickUpAndDropDTO().createPickUpDTO().longitude());
         pickUpTripStop.setStopType(tripRequest.getPickUpAndDropDTO().createPickUpDTO().stopType());
 
-
+        dropOffTripStop.setTrip(trip);
         dropOffTripStop.setAddress(dropOffRequest.address());
         dropOffTripStop.setLatitude(dropOffRequest.latitude());
         dropOffTripStop.setLongitude(dropOffRequest.longitude());
@@ -116,7 +119,11 @@ public class OrderServiceImp implements OrderService {
 
         TripCreateEvent tripCreateEvent = tripMapper.createTripCreateEventDTO(trip,tripRequest.pickUpAndDropDTO);
 
+        log.info("Inside the tripCreateEvent method which is known as OderService");
+
         tripProducer.sendTripCreateEvent(tripCreateEvent);
+
+        log.info("After create event called");
 
         return  tripResponseDTO ;
     }

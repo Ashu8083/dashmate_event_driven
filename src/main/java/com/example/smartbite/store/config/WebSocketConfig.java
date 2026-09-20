@@ -13,14 +13,20 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private final RiderWebSocket riderWebSocket;
-    public WebSocketConfig(RiderWebSocket riderWebSocket) {
+    private final WebSocketAuthInterceptor interceptor;
+    public WebSocketConfig(RiderWebSocket riderWebSocket
+                           , WebSocketAuthInterceptor interceptor
+    ) {
         this.riderWebSocket = riderWebSocket;
+        this.interceptor = interceptor;
     }
 
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(riderWebSocket, "/ws/rider").setAllowedOrigins("*");
+        registry.addHandler(riderWebSocket, "/ws/rider")
+                .addInterceptors(interceptor)
+                .setAllowedOrigins("*");
 
     }
 

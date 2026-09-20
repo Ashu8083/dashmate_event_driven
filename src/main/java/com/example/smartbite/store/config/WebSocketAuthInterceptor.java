@@ -1,5 +1,6 @@
 package com.example.smartbite.store.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -10,9 +11,9 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.apache.kafka.common.serialization.Serdes.UUID;
 
 
+@Slf4j
 @Component
 public class WebSocketAuthInterceptor  implements HandshakeInterceptor {
 
@@ -24,10 +25,11 @@ public class WebSocketAuthInterceptor  implements HandshakeInterceptor {
             Map<String, Object> attributes){
 
         String authHeader =
-                request.getHeaders().getFirst("Authorization");
+                request.getHeaders().getFirst("userId");
         // For now, assume you extracted riderId from the header/JWT
+        log.info("Inside before handshake ");
         UUID riderId =  UUID.fromString(authHeader) ;
-        attributes.put("userID", riderId);
+        attributes.put("riderId", riderId);
         return true;
 
     }

@@ -33,14 +33,14 @@ public class RiderWebSocket extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         UUID riderId =
-                (UUID) session.getAttributes().get("userID");
+                (UUID) session.getAttributes().get("riderId");
         riderSessionManager.add(riderId, session);
+        log.info("Rider session established with riderId={}", riderId);
     }
 
     @Override
     protected void handleTextMessage(
-            WebSocketSession session,
-            TextMessage message
+            WebSocketSession session, TextMessage message
             ) throws IOException {
 
         String payload = message.getPayload();
