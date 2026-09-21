@@ -17,13 +17,7 @@ public class RiderConsumer {
     public RiderConsumer(OrderService orderService) {
         this.orderService = orderService;
     }
-    @KafkaListener(
-            topics = "trip-event",
-            groupId = "trip-service"
-    )
-    public void listenTripAssign(TripAssignEvent tripAssignEvent) {
-        log.info("Received trip assign event {}", tripAssignEvent);
-        orderService.assignRider(tripAssignEvent.rider_id(), tripAssignEvent.tripId());
-    }
+
+
 
 }

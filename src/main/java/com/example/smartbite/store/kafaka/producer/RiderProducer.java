@@ -12,9 +12,7 @@ public class RiderProducer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void tripAssigned (TripAssignEvent tripAssign) {
-        kafkaTemplate.send("trip-event", tripAssign);
-    }
+
 
 
 }

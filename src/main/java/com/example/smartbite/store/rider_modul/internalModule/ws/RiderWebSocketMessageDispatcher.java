@@ -10,6 +10,7 @@ import com.example.smartbite.store.rider_modul.mapper.RiderMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.UUID;
@@ -30,8 +31,8 @@ public class RiderWebSocketMessageDispatcher {
         this.tripRequestService = tripRequestService;
     }
 
-    public void dispatch( WebSocketSession session,
-                          WebSocketRequest request) {
+    public void dispatch(WebSocketSession session,
+                         WebSocketRequest request) {
             switch (request.getType()) {
 
                 case "LOCATION_UPDATE":
@@ -53,6 +54,8 @@ public class RiderWebSocketMessageDispatcher {
                     break;
 
                 default:
+
+                    String message = "invalid request";
                     throw new IllegalArgumentException(
                             "Unknown WebSocket type: " + request.getType());
             }

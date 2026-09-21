@@ -2,23 +2,24 @@ package com.example.smartbite.store.rider_modul.internalModule.service;
 
 
 import com.example.smartbite.store.common.execption.ResourceNotFoundException;
+import com.example.smartbite.store.kafaka.enums.TripTypeEvent;
 import com.example.smartbite.store.kafaka.events.TripAssignEvent;
 import com.example.smartbite.store.kafaka.events.TripCreateEvent;
-import com.example.smartbite.store.kafaka.producer.RiderProducer;
+import com.example.smartbite.store.kafaka.events.TripEvent;
+import com.example.smartbite.store.kafaka.producer.TripProducer;
 import com.example.smartbite.store.rider_modul.internalModule.RiderSessionManager.RiderSessionAManager;
 import com.example.smartbite.store.rider_modul.internalModule.model.Riders;
 import com.example.smartbite.store.rider_modul.internalModule.repo.RiderRepo;
-import com.example.smartbite.store.trip_modul.internalModule.event.TripAvailableEvent;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -28,14 +29,16 @@ public class TripRequestService {
 
 
     private final  RiderService riderService;
-    private final  RiderProducer riderProducer;
+    private  final ObjectMapper objectMapper;
+    private final TripProducer tripProducer;
     private final  RiderSessionAManager riderSessionAManager;
     private final RiderRepo riderRepo;
 
-    public  TripRequestService(RiderService riderService , RiderProducer riderProducer,
-                                RiderSessionAManager riderSessionAManager , RiderRepo riderRepo){
+    public  TripRequestService(RiderService riderService , TripProducer tripProducer,
+                                RiderSessionAManager riderSessionAManager , RiderRepo riderRepo , ObjectMapper objectMapper) {
         this.riderService = riderService;
-        this.riderProducer = riderProducer;
+        this.tripProducer = tripProducer;
+        this.objectMapper = objectMapper;
         this.riderSessionAManager = riderSessionAManager;
         this.riderRepo = riderRepo;
 
@@ -51,7 +54,6 @@ public class TripRequestService {
                                 .orElseThrow(()-> new ResourceNotFoundException("No rider currently available"));
         WebSocketSession riderSession = riderSessionAManager.get(rider.getId());
         log.info("rider session id {}", riderSession.getId());
-        rider.setIsAvailable(false);
         riderSession.sendMessage(
                 new TextMessage("New Trip Available!")
 
@@ -76,16 +78,22 @@ public class TripRequestService {
 
 
     }
-    public void tripAccept (String tripId,String riderId) {
+
+    @Transactional
+    public void tripAccept (String riderId,String tripId) {
 
         UUID riderID = UUID.fromString(riderId);
         UUID tripID = UUID.fromString(tripId);
 
-        Riders rider = riderRepo.findById(riderID).orElseThrow(()-> new ResourceNotFoundException("No rider currently available"));
+        log.info("rider id : {}", riderID);
+        Riders rider = riderRepo.findById(riderID)
+                .orElseThrow(()-> new ResourceNotFoundException("No rider currently available"));
+
+        rider.setIsAvailable(false);
 
         TripAssignEvent tripAssignEvent = new TripAssignEvent(
-                rider.getId(),
                 tripID,
+                rider.getId(),
                 rider.getUserId(),
                 rider.getAge(),
                 rider.getGender()
@@ -93,12 +101,14 @@ public class TripRequestService {
 
         log.info("tripAssignEvent {}", tripAssignEvent);
 
-        riderProducer.tripAssigned(tripAssignEvent);
+        JsonNode payload = objectMapper.convertValue(tripAssignEvent, JsonNode.class);
+
+        TripEvent tripEvent = new TripEvent(TripTypeEvent.TRIP_ASSIGNED
+                                            ,payload);
+
+        tripProducer.sendtTripAssignEvent(tripEvent);
 
         log.info("tripAssignEvent created and called {}", tripAssignEvent);
-
-
-
 
     }
 }

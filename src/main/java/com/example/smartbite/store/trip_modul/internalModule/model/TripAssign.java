@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -28,8 +30,11 @@ public class TripAssign {
     @JoinColumn(name = "trip_id", nullable = false, unique = true)
     private Trips trip;
 
-    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "status", columnDefinition = "order_status")
     private OrderStatus status;
+
 
     @Column(name= "created_at")
     private LocalDateTime created_at;

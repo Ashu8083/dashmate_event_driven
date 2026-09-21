@@ -3,6 +3,7 @@ package com.example.smartbite.store.trip_modul.publicAPI;
 import com.example.smartbite.store.trip_modul.DTO.TripAssignModelReplica;
 import com.example.smartbite.store.trip_modul.DTO.TripModelDTO;
 import com.example.smartbite.store.trip_modul.DTO.TripResponseDTO;
+import com.example.smartbite.store.trip_modul.DTO.TripStatusUpdate;
 import com.example.smartbite.store.trip_modul.internalModule.enums.OrderStatus;
 import com.example.smartbite.store.trip_modul.internalModule.enums.StopType;
 import com.example.smartbite.store.trip_modul.internalModule.model.TripAssign;
@@ -10,6 +11,7 @@ import com.example.smartbite.store.trip_modul.internalModule.model.TripStops;
 import com.example.smartbite.store.trip_modul.internalModule.model.Trips;
 import com.example.smartbite.store.trip_modul.internalModule.repo.TripAssignRepo;
 import com.example.smartbite.store.trip_modul.internalModule.repo.TripRepo;
+import com.example.smartbite.store.trip_modul.internalModule.service.interfaces.OrderService;
 import com.example.smartbite.store.trip_modul.mapper.TripMapper;
 import org.springframework.stereotype.Component;
 
@@ -22,11 +24,14 @@ public class TripPublicAPIImpl implements  TripPublicAPI{
     final private TripRepo tripRepo;
     final private TripAssignRepo tripAssignRepo;
     final private TripMapper tripMapper;
+    final private OrderService orderService;
 
-    public TripPublicAPIImpl(TripRepo tripRepo,TripAssignRepo tripAssignRepo,TripMapper tripMapper) {
+    public TripPublicAPIImpl(TripRepo tripRepo,TripAssignRepo tripAssignRepo
+                            ,TripMapper tripMapper , OrderService orderService) {
         this.tripRepo = tripRepo;
         this.tripAssignRepo = tripAssignRepo;
-        this.tripMapper = new TripMapper();
+        this.orderService = orderService;
+        this.tripMapper =  tripMapper;
     }
 
     @Override
@@ -65,6 +70,8 @@ public class TripPublicAPIImpl implements  TripPublicAPI{
         return tripModelDTO;
     }
 
+
+
     @Override
     public TripAssignModelReplica getTripAssignToRider(UUID rider_id) {
 
@@ -72,6 +79,12 @@ public class TripPublicAPIImpl implements  TripPublicAPI{
         return null;
     }
 
+    @Override
+    public void getTripStatusUpdate(TripStatusUpdate tripStatusUpdate) {
+
+        orderService.
+
+    }
 
 
 }

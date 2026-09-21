@@ -1,37 +1,34 @@
 package com.example.smartbite.store.trip_modul.internalModule.service.imp;
 
 import com.example.smartbite.store.common.execption.ResourceNotFoundException;
-import com.example.smartbite.store.helper_service.ChargeCalculation;
-import com.example.smartbite.store.kafaka.consumer.RiderConsumer;
+
+import com.example.smartbite.store.kafaka.enums.TripTypeEvent;
+import com.example.smartbite.store.kafaka.events.TripAssignEvent;
 import com.example.smartbite.store.kafaka.events.TripCreateEvent;
+import com.example.smartbite.store.kafaka.events.TripEvent;
 import com.example.smartbite.store.kafaka.producer.TripProducer;
-import com.example.smartbite.store.payment_modul.internalModule.model.Payment;
-import com.example.smartbite.store.rider_modul.DTO.RiderDTO;
 import com.example.smartbite.store.rider_modul.DTO.RiderModelReplicaDTO;
-import com.example.smartbite.store.rider_modul.DTO.RiderResponseDTO;
 import com.example.smartbite.store.rider_modul.publicAPi.RiderPublicAPIImpl;
 import com.example.smartbite.store.trip_modul.DTO.*;
 import com.example.smartbite.store.trip_modul.internalModule.enums.OrderStatus;
-import com.example.smartbite.store.trip_modul.internalModule.enums.StopType;
-import com.example.smartbite.store.trip_modul.internalModule.event.TripAvailableEvent;
 import com.example.smartbite.store.trip_modul.internalModule.event.TripCancelAfterAssign;
 import com.example.smartbite.store.trip_modul.mapper.TripMapper;
 import com.example.smartbite.store.trip_modul.internalModule.model.TripAssign;
 import com.example.smartbite.store.trip_modul.internalModule.model.TripStops;
 import com.example.smartbite.store.trip_modul.internalModule.model.Trips;
-import com.example.smartbite.store.trip_modul.internalModule.provider.PaymentProvider;
 import com.example.smartbite.store.trip_modul.internalModule.repo.TripAssignRepo;
 import com.example.smartbite.store.trip_modul.internalModule.repo.TripRepo;
 import com.example.smartbite.store.trip_modul.internalModule.repo.TripStopRepo;
 import com.example.smartbite.store.trip_modul.internalModule.service.interfaces.OrderService;
-import com.example.smartbite.store.user_modul.publicApi.UserModuleApi;
 import com.example.smartbite.store.user_modul.publicApi.UserModuleApiImpl;
 import com.example.smartbite.store.user_modul.publicApi.UserModuleReplica;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
+
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -43,9 +40,9 @@ public class OrderServiceImp implements OrderService {
 
     private final ApplicationEventPublisher applicationEventPublisher;
     private final TripRepo tripRepo;
+    private final ObjectMapper objectMapper;
     private final TripProducer tripProducer;
     private final TripAssignRepo tripAssignRepo;
-    private final PaymentProvider paymentProvider;
     private final UserModuleApiImpl userModuleApi;
     private final RiderPublicAPIImpl riderPublicAPI;
     private final TripMapper tripMapper;
@@ -55,20 +52,20 @@ public class OrderServiceImp implements OrderService {
             ApplicationEventPublisher applicationEventPublisher,
             TripRepo tripRepo, TripAssignRepo tripAssignRepo,
             TripStopRepo tripStopRepo,
+            ObjectMapper objectMapper,
             TripProducer tripProducer,
-            UserModuleApiImpl userModuleApi , PaymentProvider paymentProvider,
-            TripMapper tripMapper, TripStopRepo tripStop,
+            UserModuleApiImpl userModuleApi ,
+            TripMapper tripMapper,
             RiderPublicAPIImpl riderPublicAPI
-
                             ) {
         this.applicationEventPublisher = applicationEventPublisher;
         this.tripRepo = tripRepo;
+        this.objectMapper = objectMapper;
         this.tripAssignRepo = tripAssignRepo;
         this.tripProducer = tripProducer;
         this.userModuleApi = userModuleApi;
         this.tripStopRepo = tripStopRepo;
         this.riderPublicAPI = riderPublicAPI;
-        this.paymentProvider = paymentProvider;
         this.tripMapper = tripMapper;
     }
 
@@ -119,9 +116,13 @@ public class OrderServiceImp implements OrderService {
 
         TripCreateEvent tripCreateEvent = tripMapper.createTripCreateEventDTO(trip,tripRequest.pickUpAndDropDTO);
 
-        log.info("Inside the tripCreateEvent method which is known as OderService");
+        log.info("Inside the tripCreateEvent method which is known as OderService trip producer called ");
 
-        tripProducer.sendTripCreateEvent(tripCreateEvent);
+        JsonNode jsonNode = objectMapper.convertValue(tripCreateEvent, JsonNode.class);
+
+        TripEvent event  = new TripEvent(TripTypeEvent.TRIP_CREATED, jsonNode);
+
+        tripProducer.sendTripCreateEvent(event);
 
         log.info("After create event called");
 
@@ -130,7 +131,12 @@ public class OrderServiceImp implements OrderService {
 
     @Transactional
     @Override
-    public TripResponseDTO assignRider(UUID riderId, UUID tripId) {
+    public TripResponseDTO assignRider(TripAssignEvent tripAssignEvent) {
+
+        UUID userId =  tripAssignEvent.user_id();
+        UUID riderId = tripAssignEvent.rider_id();
+        UUID tripId = tripAssignEvent.tripId();
+        log.info("InsideTripResponseDTO  assignRider service");
 
         Trips trip = tripRepo.findById(tripId).orElseThrow(()-> new RuntimeException("trip id not found"));
         if (trip.getStatus() != OrderStatus.PENDING){
@@ -144,11 +150,11 @@ public class OrderServiceImp implements OrderService {
         if (riderDTO == null ) {
             throw new ResourceNotFoundException("Rider not found");
         }
-
-        trip.setTripAssign(tripAssign);
         trip.setStatus(OrderStatus.ASSIGNED);
-        tripAssignRepo.save(tripAssign);
-        tripRepo.save(trip);
+        tripAssignRepo.saveAndFlush(tripAssign);
+        trip.setTripAssign(tripAssign);
+        log.info("TripAssign ID = {}", tripAssign.getId());
+        tripRepo.saveAndFlush(trip);
         UserModuleReplica riderUser = userModuleApi.getUserModuleReplica(riderDTO.user_id());
 //        TripResponseDTO tripResponseDTO = tripMapper.createTripResponseDTOOnTripAssign(trip,
 //               riderDTO,riderUser.user_name());
@@ -156,6 +162,19 @@ public class OrderServiceImp implements OrderService {
                                                                             ,riderDTO.gander(),riderDTO.age());
 
         log.info("Assign trip response successful");
+
+        return null;
+    }
+
+    @Override
+    public TripResponseDTO updateOrderStatus(TripStatusUpdate tripStatusUpdate) {
+
+        Trips trip  = tripRepo.findById(tripStatusUpdate.tripId()).orElseThrow(()-> new RuntimeException("trip id not found"));
+
+        if(trip.getStatus() == OrderStatus.ASSIGNED && trip.getTripAssign().getRiderId().equals(tripStatusUpdate.riderID())){
+            OrderStatus orderStatus = tripStatusUpdate.tripStatus() ;
+            trip.setStatus(orderStatus);
+        }
 
         return null;
     }

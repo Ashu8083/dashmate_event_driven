@@ -26,11 +26,12 @@ public class Trips {
     @Column(name = "customer_id")
     private UUID customerId;
 
-    @OneToOne(mappedBy = "trip",
+    @OneToOne(
+            mappedBy = "trip",
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY
     )
-    private  TripAssign tripAssign;
+    private TripAssign tripAssign;
 
     @OneToMany(mappedBy = "trip",
             cascade = CascadeType.ALL,

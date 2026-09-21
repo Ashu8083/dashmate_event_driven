@@ -154,13 +154,6 @@ public class TripMapper {
         return riderAssigned;
     }
 
-    public TripUpdateOnRiderAssigned createTripResponseOnRiderAssignedDTO(TripResponseDTO tripResponse, RiderAssigned riderAssigned) {
-                return  new TripUpdateOnRiderAssigned(
-                        tripResponse,
-                        riderAssigned
-                );
-
-    }
 
     public TripCreateEvent createTripCreateEventDTO(Trips trip, PickUpAndDropDTO pickUpAndDropDTO ) {
         return  new TripCreateEvent(
