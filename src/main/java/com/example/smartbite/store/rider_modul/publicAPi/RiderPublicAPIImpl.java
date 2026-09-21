@@ -31,4 +31,13 @@ public class RiderPublicAPIImpl implements RiderPublicAPI {
         RiderModelReplicaDTO riderModelReplicaDTO = riderMapper.entityToReplica(rider);
         return riderModelReplicaDTO;
     }
+
+    @Override
+    public void updateRiderStatus(UUID riderId) {
+        Riders rider = riderRepo.findById(riderId).orElseThrow(()-> new ResourceNotFoundException("Rider nor found"));
+        rider.setIsAvailable(true);
+        riderRepo.save(rider);
+    }
+
+
 }

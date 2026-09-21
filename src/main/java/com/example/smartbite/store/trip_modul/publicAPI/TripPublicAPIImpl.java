@@ -66,24 +66,17 @@ public class TripPublicAPIImpl implements  TripPublicAPI{
                 .findFirst().orElse(null);
         TripModelDTO tripModelDTO =
                 tripMapper.createTripModelDTO(trip,tripPickUp,tripDropOff);
-
         return tripModelDTO;
     }
-
-
-
     @Override
     public TripAssignModelReplica getTripAssignToRider(UUID rider_id) {
-
         tripAssignRepo.findByRiderIdAndStatus(rider_id,OrderStatus.ASSIGNED);
         return null;
     }
 
     @Override
-    public void getTripStatusUpdate(TripStatusUpdate tripStatusUpdate) {
-
-        orderService.
-
+    public void updateTripStatus(TripStatusUpdate tripStatusUpdate) {
+        orderService.updateOrderStatus(tripStatusUpdate);
     }
 
 

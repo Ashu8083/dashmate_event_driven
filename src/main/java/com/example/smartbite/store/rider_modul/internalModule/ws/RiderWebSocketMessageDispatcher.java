@@ -7,6 +7,8 @@ import com.example.smartbite.store.rider_modul.DTO.RiderTripAccept;
 import com.example.smartbite.store.rider_modul.internalModule.service.RiderService;
 import com.example.smartbite.store.rider_modul.internalModule.service.TripRequestService;
 import com.example.smartbite.store.rider_modul.mapper.RiderMapper;
+import com.example.smartbite.store.trip_modul.DTO.TripStatusUpdate;
+import com.example.smartbite.store.trip_modul.publicAPI.TripPublicAPI;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,12 +24,15 @@ public class RiderWebSocketMessageDispatcher {
 
     private final ObjectMapper objectMapper;
     private final RiderService riderService;
+    private final TripPublicAPI tripPublicAPI;
     private final TripRequestService tripRequestService;
     public RiderWebSocketMessageDispatcher(RiderService riderService ,
                                            ObjectMapper objectMapper,
+                                           TripPublicAPI tripPublicAPI,
                                            TripRequestService tripRequestService) {
         this.objectMapper = objectMapper;
         this.riderService = riderService;
+        this.tripPublicAPI = tripPublicAPI;
         this.tripRequestService = tripRequestService;
     }
 
@@ -52,6 +57,19 @@ public class RiderWebSocketMessageDispatcher {
                     riderService.makeActiveRiderAndInactive(dto);
                     log.info("Received rider update request");
                     break;
+
+                case "OUT_FOR_DELIVERY" :
+                    log.info("Received out for delivery request for pageke hand over or out for delivery");
+                    TripStatusUpdate tripStatusUpdateDTO = objectMapper.convertValue(request.getPayload(),
+                                                                    TripStatusUpdate.class);
+                    tripPublicAPI.updateTripStatus(tripStatusUpdateDTO);
+                    break;
+
+                case "PACKAGE_DELEVERED":
+                    log.info("Received package DELEVERED request");
+                    TripStatusUpdate tripStatusUpdate = objectMapper.convertValue(request.getPayload(),TripStatusUpdate.class);
+                    tripPublicAPI.updateTripStatus(tripStatusUpdate);
+                     break;
 
                 default:
 

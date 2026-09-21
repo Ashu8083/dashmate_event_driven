@@ -172,8 +172,21 @@ public class OrderServiceImp implements OrderService {
         Trips trip  = tripRepo.findById(tripStatusUpdate.tripId()).orElseThrow(()-> new RuntimeException("trip id not found"));
 
         if(trip.getStatus() == OrderStatus.ASSIGNED && trip.getTripAssign().getRiderId().equals(tripStatusUpdate.riderID())){
+            log.info("Inside the trip update method  update dtp {}", tripStatusUpdate);
             OrderStatus orderStatus = tripStatusUpdate.tripStatus() ;
             trip.setStatus(orderStatus);
+            tripRepo.save(trip);
+            log.info("Order status updated successful to OUR_FOR_DELEVERY");
+        }
+        if(trip.getStatus() == OrderStatus.OUT_FOR_DELIVERY && trip.getTripAssign().getRiderId().equals(tripStatusUpdate.riderID())){
+            if (tripStatusUpdate.tripStatus() == OrderStatus.DELIVERED) {
+                log.info("Inside the trip update method  update dtp {}", tripStatusUpdate);
+                trip.setStatus(OrderStatus.DELIVERED);
+                tripRepo.save(trip);
+                riderPublicAPI.updateRiderStatus(tripStatusUpdate.riderID());
+                log.info("Updated rider status to Available and OderStatus to Delevered ");
+            }
+
         }
 
         return null;

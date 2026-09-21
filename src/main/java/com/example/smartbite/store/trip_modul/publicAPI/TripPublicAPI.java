@@ -15,5 +15,5 @@ public interface TripPublicAPI {
 
     TripAssignModelReplica getTripAssignToRider(UUID rider_id);
 
-    void getTripStatusUpdate(TripStatusUpdate tripStatusUpdate);
+    void updateTripStatus(TripStatusUpdate tripStatusUpdate);
 }
