@@ -9,6 +9,11 @@ spring :
   jpa :
     hibernate :
       ddl-auto : none
+  data:
+    redis:
+      host: 100.116.57.13
+      port: 6379
+      timeout: 2000ms
   flyway:
     enabled: true
     locations: classpath:db/migration

@@ -59,7 +59,7 @@ public class RiderWebSocketMessageDispatcher {
                     break;
 
                 case "OUT_FOR_DELIVERY" :
-                    log.info("Received out for delivery request for pageke hand over or out for delivery");
+                    log.info("Received out for delivery request for package hand over or out for delivery");
                     TripStatusUpdate tripStatusUpdateDTO = objectMapper.convertValue(request.getPayload(),
                                                                     TripStatusUpdate.class);
                     tripPublicAPI.updateTripStatus(tripStatusUpdateDTO);
