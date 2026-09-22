@@ -13,6 +13,7 @@ import com.example.smartbite.store.trip_modul.internalModule.repo.TripAssignRepo
 import com.example.smartbite.store.trip_modul.internalModule.repo.TripRepo;
 import com.example.smartbite.store.trip_modul.internalModule.service.interfaces.OrderService;
 import com.example.smartbite.store.trip_modul.mapper.TripMapper;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -75,8 +76,10 @@ public class TripPublicAPIImpl implements  TripPublicAPI{
     }
 
     @Override
+    @Transactional
     public void updateTripStatus(TripStatusUpdate tripStatusUpdate) {
         orderService.updateOrderStatus(tripStatusUpdate);
+
     }
 
 

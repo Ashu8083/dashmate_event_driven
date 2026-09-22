@@ -166,6 +166,7 @@ public class OrderServiceImp implements OrderService {
         return null;
     }
 
+    @Transactional
     @Override
     public TripResponseDTO updateOrderStatus(TripStatusUpdate tripStatusUpdate) {
 
@@ -183,7 +184,6 @@ public class OrderServiceImp implements OrderService {
                 log.info("Inside the trip update method  update dtp {}", tripStatusUpdate);
                 trip.setStatus(OrderStatus.DELIVERED);
                 tripRepo.save(trip);
-                riderPublicAPI.updateRiderStatus(tripStatusUpdate.riderID());
                 log.info("Updated rider status to Available and OderStatus to Delevered ");
             }
 

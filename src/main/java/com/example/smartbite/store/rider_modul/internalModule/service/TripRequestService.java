@@ -20,6 +20,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -27,16 +28,17 @@ import java.util.UUID;
 @Component
 public class TripRequestService {
 
-
     private final  RiderService riderService;
+    private final RiderGeoService riderGeoService;
     private  final ObjectMapper objectMapper;
     private final TripProducer tripProducer;
     private final  RiderSessionAManager riderSessionAManager;
     private final RiderRepo riderRepo;
 
-    public  TripRequestService(RiderService riderService , TripProducer tripProducer,
+    public  TripRequestService(RiderService riderService , TripProducer tripProducer,RiderGeoService riderGeoService,
                                 RiderSessionAManager riderSessionAManager , RiderRepo riderRepo , ObjectMapper objectMapper) {
         this.riderService = riderService;
+        this.riderGeoService = riderGeoService;
         this.tripProducer = tripProducer;
         this.objectMapper = objectMapper;
         this.riderSessionAManager = riderSessionAManager;
@@ -47,12 +49,20 @@ public class TripRequestService {
     @Transactional
     public  void tripAvailableEvent (TripCreateEvent tripAvailableEvent) throws IOException {
 
-        Riders rider = riderRepo.findNearestAvailableRider(tripAvailableEvent.pickUpAndDropDTO()
-                                                            .createPickUpDTO().latitude(),
-                                                            tripAvailableEvent.pickUpAndDropDTO(
-                                                            ).createPickUpDTO().longitude())
-                                .orElseThrow(()-> new ResourceNotFoundException("No rider currently available"));
-        WebSocketSession riderSession = riderSessionAManager.get(rider.getId());
+
+        List<String> riderList = riderGeoService.findNearbyRiders(tripAvailableEvent.pickUpAndDropDTO().createPickUpDTO().longitude()
+                                        ,tripAvailableEvent.pickUpAndDropDTO().createPickUpDTO().latitude(),2);
+
+
+//        Riders rider = riderRepo.findNearestAvailableRider(tripAvailableEvent.pickUpAndDropDTO()
+//                                                            .createPickUpDTO().latitude(),
+//                                                            tripAvailableEvent.pickUpAndDropDTO(
+//                                                            ).createPickUpDTO().longitude())
+//                                .orElseThrow(()-> new ResourceNotFoundException("No rider currently available"));
+
+        UUID riderId = UUID.fromString(riderList.get(0));
+        WebSocketSession riderSession = riderSessionAManager.get(riderId);
+
         log.info("rider session id {}", riderSession.getId());
         riderSession.sendMessage(
                 new TextMessage("New Trip Available!")
@@ -63,7 +73,7 @@ public class TripRequestService {
           "type": "NEW_TRIP_REQUEST",
           "tripId": "%s",
           "pickup": "%s",
-          "dropoff": "%s",
+          "drop_off": "%s",
           "payment": %s
         }
         """.formatted(
@@ -80,13 +90,13 @@ public class TripRequestService {
     }
 
     @Transactional
-    public void tripAccept (String riderId,String tripId) {
+    public void tripAccept (UUID riderId,String tripId) {
 
-        UUID riderID = UUID.fromString(riderId);
+
         UUID tripID = UUID.fromString(tripId);
 
-        log.info("rider id : {}", riderID);
-        Riders rider = riderRepo.findById(riderID)
+        log.info("rider id : {}", riderId);
+        Riders rider = riderRepo.findById(riderId)
                 .orElseThrow(()-> new ResourceNotFoundException("No rider currently available"));
 
         rider.setIsAvailable(false);

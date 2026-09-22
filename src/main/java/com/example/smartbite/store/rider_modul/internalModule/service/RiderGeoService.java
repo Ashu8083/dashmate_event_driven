@@ -31,7 +31,7 @@ public class RiderGeoService {
         Point point = new Point(longitude, latitude);
         redisTemplate.opsForSet().add(RIDER_AVAILABLE, riderId);
 
-        redisTemplate.opsForGeo().add(  // For Geo location redis provide  opsForGeo()  to add geo location
+        redisTemplate.opsForGeo().add(  // For Geo location redis provide  opsForGeo()  to add geolocation
                 LOCATION_UPDATE,
                 point,
                 riderId.toString()
@@ -46,6 +46,16 @@ public class RiderGeoService {
         return Boolean.TRUE;
     }
 
+    public UUID markRiderAsAvailable(UUID riderId) {
+        if(Boolean.FALSE.equals(redisTemplate.opsForSet().isMember(RIDER_AVAILABLE, riderId))) {
+            redisTemplate.opsForSet().add(RIDER_AVAILABLE, riderId);
+            return  riderId;
+        }
+        else  {
+            throw new ResourceNotFoundException("Rider Details Can't Update");
+        }
+    }
+
     public void removeRiderIsAvailable(UUID riderId) {
         redisTemplate.opsForSet().remove(RIDER_AVAILABLE, riderId);
     }
@@ -58,7 +68,7 @@ public class RiderGeoService {
 
         Point point = new Point(longitude, latitude);
 
-        redisTemplate.opsForGeo().add(  // For Geo location redis provide  opsForGeo()  to add geo location
+        redisTemplate.opsForGeo().add(  // For Geo location redis provide  opsForGeo()  to add geolocation
                 LOCATION_UPDATE,
                 point,
                 riderId.toString()

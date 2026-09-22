@@ -26,18 +26,18 @@ public class RiderController {
         this.riderService = riderService;
         this.riderGeoService = riderGeoService;
     }
-    @PostMapping("/mark-rider-available")
-    public ResponseEntity<APIResponse> makeRiderAvailable(RiderAvailableDTO riderAvailableDTO){
-            RiderDTO riderDTO = riderService.makeActiveRiderAndInactive(riderAvailableDTO);
-
-            return ResponseEntity.ok(
-                    new APIResponse<>(
-                            true,
-                            "Mark as activate",
-                                    riderDTO
-                    )
-            );
-    }
+//    @PostMapping("/mark-rider-available")
+//    public ResponseEntity<APIResponse> makeRiderAvailable(RiderAvailableDTO riderAvailableDTO){
+//            RiderDTO riderDTO = riderService.makeActiveRiderAndInactive(riderId,riderAvailableDTO);
+//
+//            return ResponseEntity.ok(
+//                    new APIResponse<>(
+//                            true,
+//                            "Mark as activate",
+//                                    riderDTO
+//                    )
+//            );
+//    }
 
     @PostMapping("/create-rider-profile")
     public ResponseEntity<APIResponse> createRider(RiderCreateRequestDTO riderCreateDTO){
