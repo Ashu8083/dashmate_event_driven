@@ -4,7 +4,9 @@ import java.util.UUID;
 
 public record RiderAvailableDTO(
         UUID rider_id ,
-        Float longitude,
-        Float latitude
+        Double longitude,
+        Double latitude
+//        Float longitude,
+//        Float latitude
 ) {
 }

@@ -1,5 +1,7 @@
 package com.example.smartbite.store.rider_modul.internalModule.service;
 
+import com.example.smartbite.store.common.execption.ResourceNotFoundException;
+import com.example.smartbite.store.rider_modul.DTO.RiderDTOOnActive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.geo.*;
@@ -27,12 +29,25 @@ public class RiderGeoService {
     ) {
 
         Point point = new Point(longitude, latitude);
+        redisTemplate.opsForSet().add(RIDER_AVAILABLE, riderId);
 
         redisTemplate.opsForGeo().add(  // For Geo location redis provide  opsForGeo()  to add geo location
-                RIDER_AVAILABLE,
+                LOCATION_UPDATE,
                 point,
                 riderId.toString()
         );
+    }
+
+    public Boolean findRiderIsAvailableOrNot(UUID riderId) {
+        Boolean riderExit = redisTemplate.opsForSet().isMember(RIDER_AVAILABLE, riderId);
+        if (!Boolean.TRUE.equals(riderExit)) {
+            throw new ResourceNotFoundException("Rider currently not available");
+        }
+        return Boolean.TRUE;
+    }
+
+    public void removeRiderIsAvailable(UUID riderId) {
+        redisTemplate.opsForSet().remove(RIDER_AVAILABLE, riderId);
     }
 
     public void updateGeoLocation(
@@ -63,7 +78,7 @@ public class RiderGeoService {
 
         GeoResults<RedisGeoCommands.GeoLocation<Object>> results =
                 redisTemplate.opsForGeo().radius(
-                        RIDER_AVAILABLE,
+                        LOCATION_UPDATE,
                         circle
                 );
 

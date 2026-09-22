@@ -50,7 +50,7 @@ public class RiderController {
                 )
         );
     }
-        @PostMapping("/rider/{riderId}")
+        @PostMapping("/rider/update-loaction/{riderId}")
         public String updateLocation(
                 @PathVariable UUID riderId,
                 @RequestParam double latitude,

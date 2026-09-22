@@ -30,17 +30,19 @@ public class RiderService {
 
     private final RiderRepo riderRepo;
     private final ApplicationEventPublisher eventPublisher;
+    private final RiderGeoService riderGeoService;
     private final RiderMapper riderMapper;
     private final UserModuleApiImpl userModuleApi;
 
     public RiderService(RiderRepo riderRepo,ApplicationEventPublisher eventPublisher,
-                        RiderMapper riderMappaer ,UserModuleApiImpl userModuleApi  )
+                        RiderMapper riderMappaer ,UserModuleApiImpl userModuleApi,
+                        RiderGeoService riderGeoService)
     {
         this.riderRepo = riderRepo;
         this.eventPublisher = eventPublisher;
         this.riderMapper = riderMappaer;
         this.userModuleApi = userModuleApi;
-
+        this.riderGeoService = riderGeoService;
     }
 
 //    public RiderModelReplicaDTO getAvailableRider(PickUpAndDropDTO pickUpAddress,
@@ -81,23 +83,41 @@ public class RiderService {
 
     @Transactional
     public RiderDTO makeActiveRiderAndInactive(RiderAvailableDTO riderAvailable) {
-        Riders rider = riderRepo.findById(riderAvailable.rider_id()).orElseThrow(() -> new ResourceNotFoundException("Rider not found"));
-        log.info("RiderService makeActiveRider and publishing rider event");
 
-        if (rider.getIsAvailable()){
-            rider.setIsAvailable(false);
-            RiderDTO riderResponse = riderMapper.entityToDTO(rider);
-            return riderResponse;
-        }
 
-        rider.setIsAvailable(true);
-        rider.setLatitude(Double.valueOf(riderAvailable.latitude()));
-        rider.setLongitude(Double.valueOf(riderAvailable.longitude()));
+         if (riderGeoService.findRiderIsAvailableOrNot(riderAvailable.rider_id())){
+             riderGeoService.removeRiderIsAvailable(riderAvailable.rider_id());
+             log.info("Rider mark as Inactivate");
+             return null ;
+         }
 
-        log.info("RiderService makeActiveRider and publishing rider event");
+         riderGeoService.updateGeoLocationOnRideAvailable(riderAvailable.rider_id(),
+                                                           riderAvailable.longitude(),
+                                                            riderAvailable.latitude());
 
-        RiderDTO riderResponse = riderMapper.entityToDTO(rider);
-        return riderResponse;
+         log.info("RiderService markInactiveRider and publishing rider event");
+
+
+         return null;
+
+
+//        Riders rider = riderRepo.findById(riderAvailable.rider_id()).orElseThrow(() -> new ResourceNotFoundException("Rider not found"));
+//        log.info("RiderService makeActiveRider and publishing rider event");
+//
+//        if (rider.getIsAvailable()){
+//            rider.setIsAvailable(false);
+//            RiderDTO riderResponse = riderMapper.entityToDTO(rider);
+//            return riderResponse;
+//        }
+//
+//        rider.setIsAvailable(true);
+//        rider.setLatitude(Double.valueOf(riderAvailable.latitude()));
+//        rider.setLongitude(Double.valueOf(riderAvailable.longitude()));
+//
+//        log.info("RiderService makeActiveRider and publishing rider event");
+//
+//        RiderDTO riderResponse = riderMapper.entityToDTO(rider);
+//        return riderResponse;
     }
 
     @Transactional
