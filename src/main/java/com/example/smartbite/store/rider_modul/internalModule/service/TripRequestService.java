@@ -46,14 +46,15 @@ public class TripRequestService {
 
     }
 
-    @Transactional
     public  void tripAvailableEvent (TripCreateEvent tripAvailableEvent) throws IOException {
 
 
         List<String> riderList = riderGeoService.findNearbyRiders(tripAvailableEvent.pickUpAndDropDTO().createPickUpDTO().longitude()
                                         ,tripAvailableEvent.pickUpAndDropDTO().createPickUpDTO().latitude(),2);
 
-
+        if(  riderList.isEmpty() ){
+            throw new ResourceNotFoundException("Rider Details Can't Find Nearby Riders");
+        }
 //        Riders rider = riderRepo.findNearestAvailableRider(tripAvailableEvent.pickUpAndDropDTO()
 //                                                            .createPickUpDTO().latitude(),
 //                                                            tripAvailableEvent.pickUpAndDropDTO(
@@ -61,13 +62,14 @@ public class TripRequestService {
 //                                .orElseThrow(()-> new ResourceNotFoundException("No rider currently available"));
 
         UUID riderId = UUID.fromString(riderList.get(0));
+        log.info("riderId:{}",riderId);
         WebSocketSession riderSession = riderSessionAManager.get(riderId);
 
         log.info("rider session id {}", riderSession.getId());
         riderSession.sendMessage(
                 new TextMessage("New Trip Available!")
-
         );
+
         String message = """
         {
           "type": "NEW_TRIP_REQUEST",

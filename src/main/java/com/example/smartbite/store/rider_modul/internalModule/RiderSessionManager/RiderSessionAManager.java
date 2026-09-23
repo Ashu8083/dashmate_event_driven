@@ -13,14 +13,16 @@ public class RiderSessionAManager {
 
     private final Map<UUID, WebSocketSession> sessions =
             new ConcurrentHashMap<>();
+
     public void add(UUID riderId, WebSocketSession session) {
         sessions.put(riderId, session);
     }
+
     public void remove(UUID riderId) {
         sessions.remove(riderId);
     }
-    public WebSocketSession get(UUID riderId) {
 
+    public WebSocketSession get(UUID riderId) {
         return sessions.get(riderId);
 
     }

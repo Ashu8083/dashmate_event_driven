@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
 import java.util.UUID;
 
 
@@ -42,7 +43,7 @@ public class RiderWebSocketMessageDispatcher {
     }
 
     public void dispatch(WebSocketSession session,
-                         WebSocketRequest request) {
+                         WebSocketRequest request) throws IOException {
             UUID riderId =(UUID) session.getAttributes().get("userId");
             switch (request.getType()) {
 
@@ -88,6 +89,7 @@ public class RiderWebSocketMessageDispatcher {
                 default:
 
                     String message = "invalid request";
+                    session.sendMessage(new TextMessage(message));
                     throw new IllegalArgumentException(
                             "Unknown WebSocket type: " + request.getType());
             }

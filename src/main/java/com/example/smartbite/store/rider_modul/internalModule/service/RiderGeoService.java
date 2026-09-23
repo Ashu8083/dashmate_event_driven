@@ -39,11 +39,7 @@ public class RiderGeoService {
     }
 
     public Boolean findRiderIsAvailableOrNot(UUID riderId) {
-        Boolean riderExit = redisTemplate.opsForSet().isMember(RIDER_AVAILABLE, riderId);
-        if (!Boolean.TRUE.equals(riderExit)) {
-            throw new ResourceNotFoundException("Rider currently not available");
-        }
-        return Boolean.TRUE;
+        return redisTemplate.opsForSet().isMember(RIDER_AVAILABLE, riderId);
     }
 
     public UUID markRiderAsAvailable(UUID riderId) {
@@ -91,6 +87,16 @@ public class RiderGeoService {
                         LOCATION_UPDATE,
                         circle
                 );
+
+        if (results == null || results.getContent().isEmpty()) {
+            log.info(
+                    "No riders found within {} km of latitude={}, longitude={}",
+                    radiusKm,
+                    latitude,
+                    longitude
+            );
+            return List.of();
+        }
 
         return results.getContent()
                 .stream()
