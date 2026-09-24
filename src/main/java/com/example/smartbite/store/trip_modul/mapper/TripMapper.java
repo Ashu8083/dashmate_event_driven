@@ -11,6 +11,7 @@ import com.example.smartbite.store.trip_modul.internalModule.model.Trips;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -165,5 +166,54 @@ public class TripMapper {
         );
     }
 
+    public TripHistoryResponesDTO convertToResponseDTO(Trips  trip){
+        List<TripStops> stops = trip.getTripStop();
+
+        TripStops pickup = stops.stream()
+                .filter(stop -> stop.getStopType() == StopType.PICKUP)
+                .findFirst()
+                .orElse(null);
+
+        TripStops drop = stops.stream()
+                .filter(stop -> stop.getStopType() == StopType.DROP)
+                .findFirst()
+                .orElse(null);
+
+        CreatePickUpDTO createPickUpDTO =
+                new CreatePickUpDTO(
+                        pickup.getStopType(),
+                        pickup.getAddress(),
+                        pickup.getLatitude(),
+                        pickup.getLongitude(),
+                        pickup.getContact_name(),
+                        pickup.getContact_phone()
+                );
+
+        CreateDropDTO createDropDTO =
+                new CreateDropDTO(
+                        drop.getStopType(),
+                        drop.getAddress(),
+                        drop.getLatitude(),
+                        drop.getLongitude(),
+                        drop.getContact_name(),
+                        drop.getContact_phone()
+                );
+
+
+        PickUpAndDropDTO pickUpAndDropDTO =
+                new PickUpAndDropDTO(
+                            createDropDTO,
+                            createPickUpDTO
+                         );
+
+        return new TripHistoryResponesDTO(
+                trip.getId(),
+                trip.getTripAssign().getRiderId(),
+                trip.getStatus(),
+                pickUpAndDropDTO,
+                trip.getCreated_at()
+        );
+
+    }
 
 }

@@ -1,8 +1,7 @@
-package com.example.smartbite.store.config;
+package com.example.smartbite.store.config.webScoket;
 
 import com.example.smartbite.store.rider_modul.internalModule.ws.RiderWebSocket;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;

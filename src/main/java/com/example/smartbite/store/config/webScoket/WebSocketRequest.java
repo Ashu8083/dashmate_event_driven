@@ -1,4 +1,4 @@
-package com.example.smartbite.store.config;
+package com.example.smartbite.store.config.webScoket;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;

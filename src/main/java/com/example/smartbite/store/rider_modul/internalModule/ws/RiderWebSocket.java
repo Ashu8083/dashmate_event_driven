@@ -1,15 +1,12 @@
 package com.example.smartbite.store.rider_modul.internalModule.ws;
 
-import com.example.smartbite.store.config.WebSocketRequest;
+import com.example.smartbite.store.config.webScoket.WebSocketRequest;
 import com.example.smartbite.store.rider_modul.internalModule.RiderSessionManager.RiderSessionAManager;
-import com.example.smartbite.store.rider_modul.internalModule.service.RiderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.Comment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 

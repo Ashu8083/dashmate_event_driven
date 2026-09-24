@@ -1,14 +1,12 @@
 package com.example.smartbite.store.rider_modul.internalModule.ws;
 
 
-import com.example.smartbite.store.config.WebSocketRequest;
+import com.example.smartbite.store.config.webScoket.WebSocketRequest;
 import com.example.smartbite.store.rider_modul.DTO.RiderAvailableDTO;
 import com.example.smartbite.store.rider_modul.DTO.RiderTripAccept;
 import com.example.smartbite.store.rider_modul.internalModule.service.RiderGeoService;
 import com.example.smartbite.store.rider_modul.internalModule.service.RiderService;
 import com.example.smartbite.store.rider_modul.internalModule.service.TripRequestService;
-import com.example.smartbite.store.rider_modul.mapper.RiderMapper;
-import com.example.smartbite.store.rider_modul.publicAPi.RiderPublicAPI;
 import com.example.smartbite.store.trip_modul.DTO.TripStatusUpdate;
 import com.example.smartbite.store.trip_modul.publicAPI.TripPublicAPI;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,10 +1,9 @@
-package com.example.smartbite.store.config;
+package com.example.smartbite.store.config.webScoket;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 

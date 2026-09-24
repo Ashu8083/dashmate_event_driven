@@ -2,15 +2,13 @@ package com.example.smartbite.store.trip_modul.internalModule.controller;
 
 
 import com.example.smartbite.store.helper_service.ChargeCalculation;
-import com.example.smartbite.store.trip_modul.DTO.ResponseModelOnCancel;
-import com.example.smartbite.store.trip_modul.DTO.TripCancelRequest;
-import com.example.smartbite.store.trip_modul.DTO.TripRequest;
-import com.example.smartbite.store.trip_modul.DTO.TripResponseDTO;
+import com.example.smartbite.store.trip_modul.DTO.*;
+import com.example.smartbite.store.trip_modul.internalModule.service.interfaces.HistoryTripService;
 import com.example.smartbite.store.trip_modul.internalModule.service.interfaces.OrderService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
 
+import java.awt.print.Pageable;
 import java.util.UUID;
 
 @RestController
@@ -18,10 +16,14 @@ public class TripController {
 
     private final OrderService orderService;
     private final ChargeCalculation chargeCalculation;
+    private final HistoryTripService historyTripService;
 
-    public TripController(OrderService orderService,  ChargeCalculation chargeCalculation) {
+    public TripController(OrderService orderService,
+                          ChargeCalculation chargeCalculation,
+                            HistoryTripService historyTripService) {
         this.orderService = orderService;
         this.chargeCalculation = chargeCalculation;
+        this.historyTripService = historyTripService;
     }
 
     @PostMapping("/calculate-fare-estimate")
@@ -39,6 +41,11 @@ public class TripController {
     public ResponseModelOnCancel cancelTrip(TripCancelRequest tripRequest){
         ResponseModelOnCancel tripResponseDTO = orderService.cancelTripRequest(tripRequest);
         return  tripResponseDTO;
+    }
+
+    @GetMapping("/get-customer-trips")
+    public Page<TripHistoryResponesDTO> getCustomerTrips(@RequestParam UUID customerID, Pageable pageable){
+        return  historyTripService.getCustomerTrip(customerID, pageable);
     }
 
 
