@@ -50,7 +50,7 @@ public class TripRequestService {
 
 
         List<String> riderList = riderGeoService.findNearbyRiders(tripAvailableEvent.pickUpAndDropDTO().createPickUpDTO().longitude()
-                                        ,tripAvailableEvent.pickUpAndDropDTO().createPickUpDTO().latitude(),2);
+                                        ,tripAvailableEvent.pickUpAndDropDTO().createPickUpDTO().latitude(),4);
 
         if(  riderList.isEmpty() ){
             throw new ResourceNotFoundException("Rider Details Can't Find Nearby Riders");

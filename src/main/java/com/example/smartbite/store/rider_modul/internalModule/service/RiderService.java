@@ -84,11 +84,11 @@ public class RiderService {
     @Transactional
     public RiderDTO makeActiveRiderAndInactive(UUID riderID ,RiderAvailableDTO riderAvailable) {
 
-         if (riderGeoService.findRiderIsAvailableOrNot(riderID)){
-             riderGeoService.removeRiderIsAvailable(riderAvailable.rider_id());
-             log.info("Rider mark as Inactivate");
-             return null ;
-         }
+//         if (riderGeoService.findRiderIsAvailableOrNot(riderID)){
+//             riderGeoService.removeRiderIsAvailable(riderAvailable.rider_id());
+//             log.info("Rider mark as Inactivate");
+//             return null ;
+//         }
          riderGeoService.updateGeoLocationOnRideAvailable(riderAvailable.rider_id(),
                                                            riderAvailable.longitude(),
                                                             riderAvailable.latitude());

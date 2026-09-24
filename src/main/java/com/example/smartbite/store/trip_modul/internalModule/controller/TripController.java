@@ -6,9 +6,11 @@ import com.example.smartbite.store.trip_modul.DTO.*;
 import com.example.smartbite.store.trip_modul.internalModule.service.interfaces.HistoryTripService;
 import com.example.smartbite.store.trip_modul.internalModule.service.interfaces.OrderService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.print.Pageable;
 import java.util.UUID;
 
 @RestController
@@ -44,7 +46,15 @@ public class TripController {
     }
 
     @GetMapping("/get-customer-trips")
-    public Page<TripHistoryResponesDTO> getCustomerTrips(@RequestParam UUID customerID, Pageable pageable){
+    public Page<TripHistoryResponesDTO> getCustomerTrips(@RequestParam UUID customerID,
+                                                         @RequestParam(defaultValue = "0") int page,
+                                                         @RequestParam(defaultValue = "20") int size,
+                                                         @RequestParam(defaultValue = "created_at") String  sortBy,
+                                                         @RequestParam(defaultValue = "desc") String direction
+                                                         ){
+
+        Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
         return  historyTripService.getCustomerTrip(customerID, pageable);
     }
 

@@ -72,8 +72,8 @@ public class RiderGeoService {
     }
 
     public List<String> findNearbyRiders(
-            double latitude,
             double longitude,
+            double latitude,
             double radiusKm
     ) {
 

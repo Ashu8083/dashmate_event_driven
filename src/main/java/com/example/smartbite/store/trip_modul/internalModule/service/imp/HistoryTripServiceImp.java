@@ -7,14 +7,16 @@ import com.example.smartbite.store.trip_modul.internalModule.repo.TripRepo;
 import com.example.smartbite.store.trip_modul.internalModule.service.interfaces.HistoryTripService;
 import com.example.smartbite.store.trip_modul.mapper.TripMapper;
 import com.example.smartbite.store.user_modul.publicApi.UserModuleApi;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
+
 import java.util.UUID;
 
 
+@Slf4j
 @Service
 public class HistoryTripServiceImp implements HistoryTripService {
 
@@ -35,6 +37,7 @@ public class HistoryTripServiceImp implements HistoryTripService {
 
         Page<Trips> customerTripHistory =
                 tripRepo.findByCustomerId(customerId, pageable);
+        log.info("customerTripHistory:{}",customerTripHistory);
         Page<TripHistoryResponesDTO> tripResponseDTOPage =
                 customerTripHistory.map(
                         trip -> tripMapper.convertToResponseDTO(trip));

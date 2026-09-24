@@ -32,6 +32,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -86,11 +88,15 @@ public class OrderServiceImp implements OrderService {
             throw new ResourceNotFoundException("User not found");
         }
 
+        log.info("inside createTripRequest service");
+
         trip.setCustomerId(userModuleReplica.user_id());
         trip.setPackage_description(tripRequest.getPackage_description());
         trip.setScheduled_at(tripRequest.getScheduled_time());
 
-        tripRepo.save(trip);
+
+        tripRepo.saveAndFlush(trip);
+
 
         pickUpTripStop.setTrip(trip);
         pickUpTripStop.setAddress(tripRequest.getPickUpAndDropDTO().createPickUpDTO().address());
@@ -106,9 +112,15 @@ public class OrderServiceImp implements OrderService {
 
         TripStops tripPickUp =   tripStopRepo.save(pickUpTripStop);
         TripStops tripDropOff = tripStopRepo.save(dropOffTripStop);
+        log.info("inside createTripRequest service before trip stop added");
 
-        trip.setPickupId(tripPickUp.getId());
-        trip.setDropOffId(tripDropOff.getId());
+        trip.setTripStop(
+                new ArrayList<>(List.of(tripPickUp, tripDropOff))
+        );
+
+        log.info("inside createTripRequest service after trip stop added");
+
+
         trip.setStatus(OrderStatus.PENDING);
         tripRepo.save(trip);
 

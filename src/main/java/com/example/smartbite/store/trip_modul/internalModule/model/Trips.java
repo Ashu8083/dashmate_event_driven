@@ -38,12 +38,6 @@ public class Trips {
             fetch = FetchType.LAZY)
     private List<TripStops> tripStop;
 
-    @Column(name = "pickup_id")
-    private UUID pickupId;
-
-    @Column(name = "drop_off_id")
-    private UUID dropOffId;
-
     @Column(name = "payment_id")
     private UUID paymentId;
 

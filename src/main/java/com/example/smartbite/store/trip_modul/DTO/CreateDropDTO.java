@@ -4,7 +4,7 @@ import com.example.smartbite.store.trip_modul.internalModule.enums.StopType;
 
 
 public record CreateDropDTO(
-        StopType stopType,
+        StopType stopType ,
         String address,
         Double latitude,
         Double longitude,
